@@ -8,13 +8,16 @@
     android:background="#040404"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:clickable="true"
+    android:focusable="true"
+    >
 
     <TextView
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Super Shop"
+        android:text="@string/super_shop"
         android:textColor="@color/white"
         android:textSize="38sp"
         android:textStyle="bold"
@@ -24,7 +27,7 @@
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Any shopping just from home"
+        android:text="@string/any_shopping_just_from_home"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:layout_marginTop="20dp"/>
@@ -33,7 +36,7 @@
         android:id="@+id/textView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Version 0.0.1"
+        android:text="@string/version_0_0_1"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:layout_marginTop="400dp"/>

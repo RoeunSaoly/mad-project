@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">mad-project</string>
+    <string name="super_shop">Super Shop</string>
+    <string name="any_shopping_just_from_home">Any shopping just from home</string>
+    <string name="home">Home</string>
+    <string name="login">Login</string>
+    <string name="email">Email</string>
+    <string name="enter_your_email">Enter your Email</string>
+    <string name="password">Password</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="name">Name</string>
+    <string name="enter_your_name">Enter your Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="enter_your_password">Enter your Password</string>
+    <string name="enter_your_confirm_password">Enter your Confirm Password</string>
+    <string name="version_0_0_1">Version 0.0.1</string>
 </resources>
