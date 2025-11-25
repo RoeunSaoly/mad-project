@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Madproject">
         <activity
+            android:name=".LoginScreen"
+            android:exported="false" />
+        <activity
+            android:name=".SignUpScreen"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
