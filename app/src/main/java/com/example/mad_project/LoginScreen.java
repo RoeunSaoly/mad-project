@@ -55,7 +55,9 @@ public class LoginScreen extends AppCompatActivity {
             }
             Log.d("Login", "Email: " + Email + ", Password: " + Pass);
             //Use the data to compare with the database
-            //Then go to whatever
+            Intent intent = new Intent(LoginScreen.this, HomeScreen.class);
+            startActivity(intent);
+            finish();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

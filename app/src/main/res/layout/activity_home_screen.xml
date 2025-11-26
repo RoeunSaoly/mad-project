@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F6F8"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    tools:context=".HomeScreen">
+
+    <RelativeLayout
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Good Morning,"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="48dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="340dp"
+            android:background="@drawable/outline_notifications_24"
+            />
+
+    </RelativeLayout>
+
+
+    <EditText
+        android:id="@+id/editTextTextEmailAddress3"
+        android:layout_width="360dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/textbk"
+        android:ems="10"
+        android:hint="Search for items"
+        android:inputType="textAutoComplete"
+        android:paddingStart="25dp"
+        android:paddingEnd="10dp"
+        android:textColor="@color/black"
+        android:textColorHint="#5D5D5D"
+        android:drawablePadding="10dp"
+        app:drawableLeftCompat="@drawable/outline_search_24"
+        />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/carouselViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="32dp" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="3dp"
+        app:tabGravity="center"
+        app:tabIndicatorHeight="3dp"
+        app:tabIndicatorColor="@color/black"
+        app:tabBackground="@color/white"
+        />
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:text="Popular Now"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp"/>
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+        android:text="Recommended For You"
+        android:textColor="#6C6C6C"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"/>
+
+
+
+</LinearLayout>
