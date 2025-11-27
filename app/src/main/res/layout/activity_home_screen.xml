@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F6F8"
+    android:background="@color/white"
     android:orientation="vertical"
     android:gravity="center_horizontal"
     tools:context=".HomeScreen">
@@ -56,18 +56,8 @@
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/carouselViewPager"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="199dp"
         android:layout_marginTop="32dp" />
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabIndicator"
-        android:layout_width="wrap_content"
-        android:layout_height="3dp"
-        app:tabGravity="center"
-        app:tabIndicatorHeight="3dp"
-        app:tabIndicatorColor="@color/black"
-        app:tabBackground="@color/white"
-        />
 
     <TextView
         android:id="@+id/textView11"
@@ -89,6 +79,12 @@
         android:textSize="20sp"
         android:layout_marginTop="10dp"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recommendedRecyclerView"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        />
 
 
 </LinearLayout>
