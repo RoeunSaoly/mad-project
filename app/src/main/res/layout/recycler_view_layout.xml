@@ -19,6 +19,7 @@
             android:layout_height="160dp"
             android:scaleType="fitCenter"
             android:background="#F6F6F6"
+            android:contentDescription="imageCard"
             />
 
     </androidx.cardview.widget.CardView>

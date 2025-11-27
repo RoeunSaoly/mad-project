@@ -29,7 +29,7 @@
             android:id="@+id/imageButton"
             android:layout_width="48dp"
             android:layout_height="30dp"
-            android:layout_marginLeft="340dp"
+            android:layout_marginStart="340dp"
             android:background="@drawable/outline_notifications_24"
             android:contentDescription="bell"
             />
@@ -38,10 +38,11 @@
 
 
     <EditText
-        android:id="@+id/editTextTextEmailAddress3"
+        android:id="@+id/searchbar"
         android:layout_width="360dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
+        android:autofillHints=""
         android:background="@drawable/textbk"
         android:ems="10"
         android:hint="Search for items"

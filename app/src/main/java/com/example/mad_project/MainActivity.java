@@ -20,12 +20,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         View mainLayout = findViewById(R.id.main);
 
-        mainLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        mainLayout.setOnClickListener(View -> {
                 Intent intent = new Intent(MainActivity.this, LoginScreen.class);
                 startActivity(intent);
-            }
         });
         ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v,insets)->{
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
