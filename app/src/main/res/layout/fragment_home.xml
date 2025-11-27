@@ -1,14 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp">
 
+    <!-- Welcome message -->
     <TextView
+        android:id="@+id/welcomeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/home_fragment"
-        android:textSize="24sp" />
+        android:text="Welcome, User!"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="16dp"/>
 
+    <!-- Search input inside HomeFragment -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/homeSearchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="Search shirts..."
+        android:iconifiedByDefault="false"
+        android:layout_marginBottom="8dp"/>
+
+
+    <!-- Popular Now label -->
+    <TextView
+        android:id="@+id/popularNow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Popular Now"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp"/>
+
+    <!-- Horizontal RecyclerView for cards -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/horizontalRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:orientation="horizontal"
+        android:clipToPadding="false"
+        android:scrollbars="horizontal"/>
 </LinearLayout>

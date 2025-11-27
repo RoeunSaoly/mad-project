@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="140dp"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@android:color/white"
+    android:elevation="4dp"
+    android:layout_marginEnd="12dp">
+
+    <ImageView
+        android:id="@+id/shirtImage"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_foreground"/>
+
+    <TextView
+        android:id="@+id/shirtName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="T-Shirt"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"/>
+
+    <TextView
+        android:id="@+id/shirtPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="$25"
+        android:textSize="14sp"
+        android:textColor="#FF6200EE"/>
+</LinearLayout>

@@ -10,8 +10,8 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mad_project"
-        minSdk = 36
-        targetSdk = 36
+        minSdk = 33
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
