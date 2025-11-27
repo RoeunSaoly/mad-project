@@ -31,6 +31,7 @@
             android:layout_height="30dp"
             android:layout_marginLeft="340dp"
             android:background="@drawable/outline_notifications_24"
+            android:contentDescription="bell"
             />
 
     </RelativeLayout>
@@ -81,10 +82,63 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recommendedRecyclerView"
-        android:layout_width="380dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        />
+        android:layout_marginBottom="100dp" />
+
+    <LinearLayout
+        android:layout_width="420dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        >
+
+        <ImageButton
+            android:id="@+id/home"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/outline_home_24"
+            android:layout_margin="30dp"
+            android:contentDescription="Home"
+            />
+
+        <ImageButton
+            android:id="@+id/search"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/outline_saved_search_24"
+            android:layout_margin="30dp"
+            android:contentDescription="Search"
+            />
+
+        <ImageButton
+            android:id="@+id/favorite"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/outline_favorite_24"
+            android:layout_margin="30dp"
+            android:contentDescription="Favorite"
+            />
+
+        <ImageButton
+            android:id="@+id/cart"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/outline_shopping_bag_24"
+            android:layout_margin="30dp"
+            android:contentDescription="Cart"
+            />
+
+        <ImageButton
+            android:id="@+id/profile"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/outline_person_24"
+            android:layout_margin="30dp"
+            android:contentDescription="Profile"
+            />
+
+    </LinearLayout>
 
 
 </LinearLayout>
