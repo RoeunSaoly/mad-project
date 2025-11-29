@@ -1,64 +1,126 @@
 package com.example.mad_project;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class ProfileFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "ProfileFragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private TextView profileName, profileEmail;
+    private Button logoutButton;
+    private ProgressBar progressBar;
+    private LinearLayout profileContent;
 
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        initFirebase();
+        initViews(view);
+        setupListeners();
+
+        loadUserProfile();
+
+        return view;
+    }
+
+    private void initFirebase() {
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+    }
+
+    private void initViews(View view) {
+        profileName = view.findViewById(R.id.profile_name);
+        profileEmail = view.findViewById(R.id.profile_email);
+        logoutButton = view.findViewById(R.id.logout_button);
+        progressBar = view.findViewById(R.id.progressBar);
+        profileContent = view.findViewById(R.id.profile_content);
+    }
+
+    private void setupListeners() {
+        logoutButton.setOnClickListener(v -> logoutUser());
+    }
+
+    private void loadUserProfile() {
+        setInProgress(true);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            db.collection("users").document(currentUser.getUid()).get()
+                    .addOnCompleteListener(task -> {
+                        setInProgress(false);
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                String name = document.getString("name");
+                                String email = document.getString("email");
+                                profileName.setText(name);
+                                profileEmail.setText(email);
+                                profileContent.setVisibility(View.VISIBLE);
+                            } else {
+                                Log.d(TAG, "No such document");
+                                showSnackbar("Profile not found.");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                            showSnackbar("Failed to load profile.");
+                        }
+                    });
+        } else {
+            // This should not happen if the user is on this screen
+            setInProgress(false);
+            showSnackbar("No user is signed in.");
+            navigateToLogin();
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+    private void logoutUser() {
+        mAuth.signOut();
+        navigateToLogin();
+    }
+
+    private void navigateToLogin() {
+        if (getActivity() != null) {
+            Intent intent = new Intent(getActivity(), LoginScreen.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            getActivity().finish();
+        }
+    }
+
+    private void setInProgress(boolean inProgress) {
+        if (inProgress) {
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private void showSnackbar(String message) {
+        if (getView() != null) {
+            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+        }
     }
 }
