@@ -14,10 +14,10 @@
     <string name="enter_your_password">Enter your Password</string>
     <string name="enter_your_confirm_password">Enter your Confirm Password</string>
     <string name="version_0_0_1">Version 0.0.1</string>
-    <string name="search">search</string>
-    <string name="heart">heart</string>
-    <string name="bag">bag</string>
-    <string name="profile">profile</string>
+    <string name="search">Shop</string>
+    <string name="heart">Favorites</string>
+    <string name="bag">Bag</string>
+    <string name="profile">Profile</string>
     <string name="home_fragment">Home Fragment</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
