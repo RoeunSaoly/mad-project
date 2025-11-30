@@ -17,9 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SignUpScreen extends AppCompatActivity {
 
     private static final String TAG = "SignUpScreen";
@@ -59,7 +56,6 @@ public class SignUpScreen extends AppCompatActivity {
 
     private void setupListeners() {
         textViewLogin.setOnClickListener(v -> {
-            // Navigate to Login screen
             startActivity(new Intent(SignUpScreen.this, LoginScreen.class));
         });
 
@@ -98,16 +94,8 @@ public class SignUpScreen extends AppCompatActivity {
     }
 
     private boolean isInputValid(String name, String email, String password, String confirmPassword) {
-        if (TextUtils.isEmpty(name)) {
-            showSnackbar("Enter name");
-            return false;
-        }
-        if (TextUtils.isEmpty(email)) {
-            showSnackbar("Enter email");
-            return false;
-        }
-        if (TextUtils.isEmpty(password)) {
-            showSnackbar("Enter password");
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            showSnackbar("All fields are required");
             return false;
         }
         if (password.length() < 6) {
@@ -122,12 +110,13 @@ public class SignUpScreen extends AppCompatActivity {
     }
 
     private void saveUserProfile(FirebaseUser firebaseUser, String name, String email) {
-        Map<String, Object> userProfile = new HashMap<>();
-        userProfile.put("name", name);
-        userProfile.put("email", email);
+        String defaultLocation = "Phnom Penh";
+        String defaultImageUrl = "https://firebasestorage.googleapis.com/v0/b/your-project-id.appspot.com/o/default_profile.png?alt=media"; // Replace with a real URL to a default image
+
+        User newUser = new User(name, email, defaultLocation, defaultImageUrl);
 
         db.collection("users").document(firebaseUser.getUid())
-                .set(userProfile)
+                .set(newUser)
                 .addOnCompleteListener(profileTask -> {
                     if (profileTask.isSuccessful()) {
                         Log.d(TAG, "User profile saved.");
@@ -136,7 +125,6 @@ public class SignUpScreen extends AppCompatActivity {
                         Log.w(TAG, "Error saving user profile.", profileTask.getException());
                         showSnackbar("Account created but failed to save profile.");
                     }
-                    // Navigate to Home in either case, as Auth was successful
                     navigateToHome();
                 });
     }
@@ -149,13 +137,8 @@ public class SignUpScreen extends AppCompatActivity {
     }
     
     private void setInProgress(boolean inProgress) {
-        if (inProgress) {
-            progressBar.setVisibility(View.VISIBLE);
-            buttonSignUp.setEnabled(false);
-        } else {
-            progressBar.setVisibility(View.GONE);
-            buttonSignUp.setEnabled(true);
-        }
+        progressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        buttonSignUp.setEnabled(!inProgress);
     }
 
     private void showSnackbar(String message) {

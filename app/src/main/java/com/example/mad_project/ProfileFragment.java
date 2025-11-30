@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -15,20 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ProfileFragment extends Fragment {
 
     private static final String TAG = "ProfileFragment";
 
-    private TextView profileName, profileEmail;
+    private CircleImageView profileImageView;
+    private TextView profileName, profileLocation;
     private Button logoutButton;
     private ProgressBar progressBar;
-    private LinearLayout profileContent;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -53,11 +55,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void initViews(View view) {
+        profileImageView = view.findViewById(R.id.profile_image);
         profileName = view.findViewById(R.id.profile_name);
-        profileEmail = view.findViewById(R.id.profile_email);
+        profileLocation = view.findViewById(R.id.profile_location);
         logoutButton = view.findViewById(R.id.logout_button);
         progressBar = view.findViewById(R.id.progressBar);
-        profileContent = view.findViewById(R.id.profile_content);
     }
 
     private void setupListeners() {
@@ -74,11 +76,17 @@ public class ProfileFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document != null && document.exists()) {
-                                String name = document.getString("name");
-                                String email = document.getString("email");
-                                profileName.setText(name);
-                                profileEmail.setText(email);
-                                profileContent.setVisibility(View.VISIBLE);
+                                User user = document.toObject(User.class);
+                                if (user != null) {
+                                    profileName.setText(user.getName());
+                                    profileLocation.setText(user.getLocation());
+
+                                    if (getContext() != null && user.getProfileImageUrl() != null) {
+                                        Glide.with(getContext())
+                                                .load(user.getProfileImageUrl())
+                                                .into(profileImageView);
+                                    }
+                                }
                             } else {
                                 Log.d(TAG, "No such document");
                                 showSnackbar("Profile not found.");
@@ -89,9 +97,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
         } else {
-            // This should not happen if the user is on this screen
             setInProgress(false);
-            showSnackbar("No user is signed in.");
             navigateToLogin();
         }
     }
@@ -111,11 +117,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setInProgress(boolean inProgress) {
-        if (inProgress) {
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.GONE);
-        }
+        progressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
     }
 
     private void showSnackbar(String message) {

@@ -1,6 +1,7 @@
 package com.example.mad_project;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +12,29 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
+    private static final String TAG = "ProductAdapter";
+
     private final Context context;
     private final List<Product> productList;
+    private final FirebaseFirestore db;
+    private final FirebaseUser currentUser;
 
     public ProductAdapter(Context context, List<Product> productList) {
         this.context = context;
         this.productList = productList;
+        this.db = FirebaseFirestore.getInstance();
+        this.currentUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @NonNull
@@ -37,18 +49,49 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = productList.get(position);
 
         holder.productName.setText(product.getName());
+        holder.productDescription.setText(product.getDescription());
         holder.productPrice.setText(String.format(Locale.US, "$%.2f USD", product.getPrice()));
 
         String imageUrl = product.getFirstImageUrl();
         if (imageUrl != null) {
-            Glide.with(context)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.baseline_arrow_back_ios_24) // Optional: a placeholder image
-                    .error(R.drawable.baseline_arrow_back_ios_24)       // Optional: an error image
-                    .into(holder.productImage);
+            Glide.with(context).load(imageUrl).into(holder.productImage);
+        }
+
+        // Set initial favorite state
+        updateFavoriteIcon(holder.favoriteButton, product.isFavorited());
+
+        holder.favoriteButton.setOnClickListener(v -> {
+            if (currentUser == null) return; // Should not happen
+
+            boolean isCurrentlyFavorited = product.isFavorited();
+            product.setFavorited(!isCurrentlyFavorited);
+            updateFavoriteIcon(holder.favoriteButton, !isCurrentlyFavorited);
+
+            if (!isCurrentlyFavorited) {
+                // Add to favorites
+                Map<String, Object> favoriteData = new HashMap<>();
+                favoriteData.put("productId", product.getId());
+                db.collection("users").document(currentUser.getUid())
+                        .collection("favorites").document(product.getId())
+                        .set(favoriteData)
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Added to favorites: " + product.getId()))
+                        .addOnFailureListener(e -> Log.w(TAG, "Error adding to favorites", e));
+            } else {
+                // Remove from favorites
+                db.collection("users").document(currentUser.getUid())
+                        .collection("favorites").document(product.getId())
+                        .delete()
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Removed from favorites: " + product.getId()))
+                        .addOnFailureListener(e -> Log.w(TAG, "Error removing from favorites", e));
+            }
+        });
+    }
+
+    private void updateFavoriteIcon(ImageView imageView, boolean isFavorited) {
+        if (isFavorited) {
+            imageView.setImageResource(R.drawable.ic_favorite_filled);
         } else {
-            // Optionally, set a default image if there are no images
-            holder.productImage.setImageResource(R.drawable.baseline_arrow_back_ios_24);
+            imageView.setImageResource(R.drawable.ic_favorite_border);
         }
     }
 
@@ -59,13 +102,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView productImage;
+        ImageView favoriteButton;
         TextView productName;
+        TextView productDescription;
         TextView productPrice;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.product_image);
+            favoriteButton = itemView.findViewById(R.id.favorite_button);
             productName = itemView.findViewById(R.id.product_name);
+            productDescription = itemView.findViewById(R.id.product_description);
             productPrice = itemView.findViewById(R.id.product_price);
         }
     }
