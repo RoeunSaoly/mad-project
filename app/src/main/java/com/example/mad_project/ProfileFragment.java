@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,7 +30,7 @@ public class ProfileFragment extends Fragment {
 
     private CircleImageView profileImageView;
     private TextView profileName, profileLocation;
-    private Button logoutButton;
+    private Button logoutButton, editProfileButton, ordersButton, favoritesButton, settingsButton;
     private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
@@ -59,11 +60,28 @@ public class ProfileFragment extends Fragment {
         profileName = view.findViewById(R.id.profile_name);
         profileLocation = view.findViewById(R.id.profile_location);
         logoutButton = view.findViewById(R.id.logout_button);
+        editProfileButton = view.findViewById(R.id.edit_profile_button);
+        ordersButton = view.findViewById(R.id.orders_button);
+        favoritesButton = view.findViewById(R.id.favorites_button);
+        settingsButton = view.findViewById(R.id.settings_button);
         progressBar = view.findViewById(R.id.progressBar);
     }
 
     private void setupListeners() {
         logoutButton.setOnClickListener(v -> logoutUser());
+
+        // Navigate to Favorites tab when the button is clicked
+        favoritesButton.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                ((BottomNavigationView) getActivity().findViewById(R.id.bottom_nav)).setSelectedItemId(R.id.nav_heart);
+            }
+        });
+
+        // Add placeholder functionality for other buttons
+        View.OnClickListener notImplementedListener = v -> showSnackbar("This feature is not yet implemented.");
+        editProfileButton.setOnClickListener(notImplementedListener);
+        ordersButton.setOnClickListener(notImplementedListener);
+        settingsButton.setOnClickListener(notImplementedListener);
     }
 
     private void loadUserProfile() {
@@ -84,6 +102,7 @@ public class ProfileFragment extends Fragment {
                                     if (getContext() != null && user.getProfileImageUrl() != null) {
                                         Glide.with(getContext())
                                                 .load(user.getProfileImageUrl())
+                                                .placeholder(R.drawable.ic_profile) // Optional placeholder
                                                 .into(profileImageView);
                                     }
                                 }
