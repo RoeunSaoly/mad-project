@@ -1,10 +1,18 @@
 package com.example.mad_project;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -20,7 +28,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,10 +38,13 @@ public class SearchFragment extends Fragment {
 
     private static final String TAG = "SearchFragment";
     private static final int PAGE_SIZE = 10;
+    private static final long SEARCH_DELAY_MS = 500; // 500ms delay
 
     private RecyclerView productsRecyclerView;
     private ProgressBar progressBar;
     private ChipGroup categoryChipGroup;
+    private EditText searchBarEditText;
+    private ImageView searchIcon;
 
     private ProductAdapter productAdapter;
     private final List<Product> productList = new ArrayList<>();
@@ -46,6 +56,10 @@ public class SearchFragment extends Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private String selectedCategory = null;
+    private String currentSearchTerm = null;
+
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     @Nullable
     @Override
@@ -57,13 +71,22 @@ public class SearchFragment extends Fragment {
         productsRecyclerView = view.findViewById(R.id.products_recycler_view);
         progressBar = view.findViewById(R.id.progressBar);
         categoryChipGroup = view.findViewById(R.id.category_chip_group);
+        searchBarEditText = view.findViewById(R.id.search_bar_edit_text);
+        searchIcon = view.findViewById(R.id.action_search);
 
         setupRecyclerView();
-        setupChipListener();
+        setupListeners();
 
         loadFavoritesAndThenProducts();
 
         return view;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Important: Cancel any pending search to prevent crashes
+        searchHandler.removeCallbacks(searchRunnable);
     }
 
     private void setupRecyclerView() {
@@ -81,9 +104,7 @@ public class SearchFragment extends Fragment {
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
                 if (!isLoading && !isLastPage) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
-                            && firstVisibleItemPosition >= 0
-                            && totalItemCount >= PAGE_SIZE) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount && firstVisibleItemPosition >= 0) {
                         loadProducts();
                     }
                 }
@@ -91,7 +112,7 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private void setupChipListener() {
+    private void setupListeners() {
         categoryChipGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chip_all) {
                 selectedCategory = null;
@@ -104,11 +125,60 @@ public class SearchFragment extends Fragment {
             }
             resetAndLoadProducts();
         });
+
+        searchIcon.setOnClickListener(v -> toggleSearchBar());
+
+        searchBarEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchHandler.removeCallbacks(searchRunnable);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                currentSearchTerm = s.toString().trim();
+                searchRunnable = () -> resetAndLoadProducts();
+                searchHandler.postDelayed(searchRunnable, SEARCH_DELAY_MS);
+            }
+        });
+    }
+
+    private void toggleSearchBar() {
+        if (searchBarEditText.getVisibility() == View.GONE) {
+            searchBarEditText.setVisibility(View.VISIBLE);
+            searchBarEditText.requestFocus();
+            showKeyboard();
+        } else {
+            searchBarEditText.setVisibility(View.GONE);
+            searchBarEditText.setText("");
+            currentSearchTerm = null;
+            hideKeyboard();
+            resetAndLoadProducts();
+        }
+    }
+
+    private void showKeyboard() {
+        if (getContext() == null) return;
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.showSoftInput(searchBarEditText, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
+    private void hideKeyboard() {
+        if (getContext() == null) return;
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(searchBarEditText.getWindowToken(), 0);
+        }
     }
 
     private void loadFavoritesAndThenProducts() {
         if (currentUser == null) {
-            loadProducts(); // Load products without favorite status
+            loadProducts();
             return;
         }
 
@@ -116,11 +186,10 @@ public class SearchFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         favoriteProductIds.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            favoriteProductIds.add(document.getId());
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            favoriteProductIds.add(doc.getId());
                         }
                     }
-                    // Proceed to load products regardless of favorite loading success
                     loadProducts();
                 });
     }
@@ -130,7 +199,7 @@ public class SearchFragment extends Fragment {
         lastVisible = null;
         isLastPage = false;
         productAdapter.notifyDataSetChanged();
-        loadFavoritesAndThenProducts();
+        loadProducts();
     }
 
     private void loadProducts() {
@@ -144,6 +213,11 @@ public class SearchFragment extends Fragment {
             query = query.whereEqualTo("category", selectedCategory);
         }
 
+        if (currentSearchTerm != null && !currentSearchTerm.isEmpty()) {
+            query = query.whereGreaterThanOrEqualTo("name", currentSearchTerm)
+                         .whereLessThanOrEqualTo("name", currentSearchTerm + "\uf8ff");
+        }
+
         if (lastVisible != null) {
             query = query.startAfter(lastVisible);
         }
@@ -153,15 +227,13 @@ public class SearchFragment extends Fragment {
             if (task.isSuccessful()) {
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
                 for (DocumentSnapshot document : documents) {
-                    try {
-                        Product product = document.toObject(Product.class);
-                        product.setId(document.getId()); // Set the document ID
+                    Product product = document.toObject(Product.class);
+                    if (product != null) {
+                        product.setId(document.getId());
                         if (favoriteProductIds.contains(product.getId())) {
                             product.setFavorited(true);
                         }
                         productList.add(product);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error converting document to Product object", e);
                     }
                 }
                 productAdapter.notifyDataSetChanged();
@@ -169,11 +241,9 @@ public class SearchFragment extends Fragment {
                 if (!documents.isEmpty()) {
                     lastVisible = documents.get(documents.size() - 1);
                 }
-
                 if (documents.size() < PAGE_SIZE) {
                     isLastPage = true;
                 }
-
             } else {
                 Log.w(TAG, "Error getting documents.", task.getException());
                 showSnackbar("Failed to load products.");
@@ -183,11 +253,7 @@ public class SearchFragment extends Fragment {
 
     private void setInProgress(boolean inProgress) {
         isLoading = inProgress;
-        if (inProgress) {
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            progressBar.setVisibility(View.GONE);
-        }
+        progressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
     }
 
     private void showSnackbar(String message) {
