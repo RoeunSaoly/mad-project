@@ -20,6 +20,9 @@
             android:name=".LoginScreen"
             android:exported="false" />
         <activity
+            android:name=".HomeScreen"
+            android:exported="false" />
+        <activity
             android:name=".SignUpScreen"
             android:exported="false" />
         <activity
