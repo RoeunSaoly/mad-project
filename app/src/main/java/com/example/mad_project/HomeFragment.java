@@ -1,8 +1,11 @@
 package com.example.mad_project;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,38 +22,43 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class HomeFragment extends Fragment {
 
+    private static final String TAG = "HomeFragment";
     private static final long CAROUSEL_DELAY_MS = 3000;
 
     // UI
-    private TextView greetingText, seeAllButton;
+    private TextView userNameText, setStoreText, seeAllCategoriesButton, seeAllRecommendedButton;
     private ViewPager2 carouselViewPager;
     private LinearLayout dotsIndicator;
-    private RecyclerView popularRecyclerView, moreProductsRecyclerView, allProductsGridRecyclerView;
+    private RecyclerView categoryRecyclerView, recommendedProductsRecyclerView, allProductsGridRecyclerView;
 
     // Adapters
-    private ProductAdapter popularProductAdapter, moreProductsAdapter, allProductsGridAdapter;
+    private CategoryAdapter categoryAdapter;
+    private ProductAdapter recommendedProductsAdapter, allProductsGridAdapter;
     private CarouselAdapter carouselAdapter;
 
     // Data lists
-    private final List<Product> popularProductList = new ArrayList<>();
-    private final List<Product> moreProductsList = new ArrayList<>();
+    private final List<Category> categoryList = new ArrayList<>();
+    private final List<Product> recommendedProductsList = new ArrayList<>();
     private final List<Product> allProductsGridList = new ArrayList<>();
     private final List<CarouselItem> carouselItems = new ArrayList<>();
-    private final Set<String> favoriteProductIds = new HashSet<>();
+    private Set<String> favoriteProductIds = new HashSet<>();
 
     // Firebase
     private FirebaseAuth mAuth;
@@ -60,10 +68,6 @@ public class HomeFragment extends Fragment {
     // Carousel
     private final Handler carouselHandler = new Handler(Looper.getMainLooper());
     private Runnable carouselRunnable;
-
-    // Pagination
-    private DocumentSnapshot popularLastVisible;
-    private DocumentSnapshot moreLastVisible;
 
     @Nullable
     @Override
@@ -79,13 +83,13 @@ public class HomeFragment extends Fragment {
         setupRecyclerViews();
         setupCarousel();
         setupListeners();
-        loadInitialData();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         startCarouselAutoScroll();
+        loadInitialData();
     }
 
     @Override
@@ -95,7 +99,7 @@ public class HomeFragment extends Fragment {
     }
 
     // -------------------------------
-    // INIT
+    // INITIALIZATION
     // -------------------------------
     private void initFirebase() {
         mAuth = FirebaseAuth.getInstance();
@@ -104,93 +108,98 @@ public class HomeFragment extends Fragment {
     }
 
     private void initViews(View view) {
-        greetingText = view.findViewById(R.id.greeting_text);
-        seeAllButton = view.findViewById(R.id.see_all_button);
+        userNameText = view.findViewById(R.id.user_name_text);
+        setStoreText = view.findViewById(R.id.set_store_text);
+        seeAllCategoriesButton = view.findViewById(R.id.see_all_categories_button);
+        seeAllRecommendedButton = view.findViewById(R.id.see_all_recommended_button);
         carouselViewPager = view.findViewById(R.id.carousel_view_pager);
         dotsIndicator = view.findViewById(R.id.dots_indicator);
 
-        popularRecyclerView = view.findViewById(R.id.popular_recycler_view);
-        moreProductsRecyclerView = view.findViewById(R.id.more_products_recycler_view);
-        // Temporarily comment out the line causing the error
-        // allProductsGridRecyclerView = view.findViewById(R.id.all_products_grid_recycler_view);
+        categoryRecyclerView = view.findViewById(R.id.category_recycler_view);
+        recommendedProductsRecyclerView = view.findViewById(R.id.recommended_products_recycler_view);
+        allProductsGridRecyclerView = view.findViewById(R.id.all_products_grid_recycler_view);
     }
 
-    // -------------------------------
-    // RECYCLERS
-    // -------------------------------
     private void setupRecyclerViews() {
-        popularProductAdapter = new ProductAdapter(getContext(), popularProductList);
-        popularRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        popularRecyclerView.setAdapter(popularProductAdapter);
+        if (getContext() == null) return;
+        setupCategoryRecyclerView();
 
-        moreProductsAdapter = new ProductAdapter(getContext(), moreProductsList);
-        moreProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        moreProductsRecyclerView.setAdapter(moreProductsAdapter);
+        recommendedProductsAdapter = new ProductAdapter(getContext(), recommendedProductsList);
+        recommendedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recommendedProductsRecyclerView.setAdapter(recommendedProductsAdapter);
 
-        // Temporarily comment out the setup for the grid
-        /*
         allProductsGridAdapter = new ProductAdapter(getContext(), allProductsGridList);
-        if (allProductsGridRecyclerView != null) {
-            allProductsGridRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-            allProductsGridRecyclerView.setAdapter(allProductsGridAdapter);
-        }
-        */
+        allProductsGridRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        allProductsGridRecyclerView.setAdapter(allProductsGridAdapter);
     }
 
-    // ... (The rest of your code remains the same, but the methods that use the grid will do nothing now)
+    private void setupCategoryRecyclerView() {
+        categoryList.clear();
+        categoryList.add(new Category("Sports", R.drawable.ic_category_sports));
+        categoryList.add(new Category("Shoes", R.drawable.ic_category_shoes));
+        categoryList.add(new Category("Women", R.drawable.ic_category_women));
+        categoryList.add(new Category("Men", R.drawable.ic_category_men));
+        categoryList.add(new Category("Beauty", R.drawable.ic_category_accessories)); // Placeholder
+
+        categoryAdapter = new CategoryAdapter(getContext(), categoryList);
+        categoryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        categoryRecyclerView.setAdapter(categoryAdapter);
+    }
+
+    private void setupListeners() {
+        View.OnClickListener seeAllClickListener = v -> {
+            if (getActivity() != null) {
+                ((BottomNavigationView) getActivity().findViewById(R.id.bottom_nav)).setSelectedItemId(R.id.nav_search);
+            }
+        };
+        seeAllCategoriesButton.setOnClickListener(seeAllClickListener);
+        seeAllRecommendedButton.setOnClickListener(seeAllClickListener);
+    }
 
     // -------------------------------
-    // CAROUSEL
+    // CAROUSEL LOGIC
     // -------------------------------
     private void setupCarousel() {
+        if (getContext() == null) return;
         carouselItems.clear();
-        carouselItems.add(new CarouselItem("Fresh Fits for the Heat", "Lightweight, breathable styles.", "https://plus.unsplash.com/premium_photo-1678216999335-5153b5a452c2"));
-        carouselItems.add(new CarouselItem("New Collection Drop", "Discover the latest trends in fashion.", "https://images.unsplash.com/photo-1445205170230-053b83016050"));
-        carouselItems.add(new CarouselItem("Summer Sale is Live!", "Up to 50% off.", "https://images.unsplash.com/photo-1483985988355-763728e1935b"));
+        carouselItems.add(new CarouselItem("Your Goals. Your Gear.", "Accelerate your fitness journey with these essentials.", R.drawable.carousel1));
+        carouselItems.add(new CarouselItem("New Collection Drop", "Discover the latest trends.", R.drawable.carousel2));
+        carouselItems.add(new CarouselItem("Summer Sale!", "Up to 50% off.", R.drawable.carousel3));
 
         carouselAdapter = new CarouselAdapter(carouselItems);
         carouselViewPager.setAdapter(carouselAdapter);
-
         setupDotsIndicator();
-
-        carouselRunnable = () -> {
-            int next = (carouselViewPager.getCurrentItem() + 1) % carouselAdapter.getItemCount();
-            carouselViewPager.setCurrentItem(next, true);
-        };
+        startCarouselAutoScroll();
 
         carouselViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                super.onPageSelected(position);
                 updateDotsIndicator(position);
-                carouselHandler.removeCallbacks(carouselRunnable);
-                carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
             }
         });
     }
 
     private void startCarouselAutoScroll() {
-        if (carouselRunnable != null) {
-            carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
-        }
+        carouselHandler.removeCallbacks(carouselRunnable);
+        carouselRunnable = () -> {
+            int next = (carouselViewPager.getCurrentItem() + 1) % carouselAdapter.getItemCount();
+            carouselViewPager.setCurrentItem(next, true);
+        };
+        carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
     }
 
     private void stopCarouselAutoScroll() {
-        if (carouselRunnable != null) {
-            carouselHandler.removeCallbacks(carouselRunnable);
-        }
+        carouselHandler.removeCallbacks(carouselRunnable);
     }
 
     private void setupDotsIndicator() {
         if (getContext() == null) return;
         dotsIndicator.removeAllViews();
-        for (int i = 0; i < carouselItems.size(); i++) {
+        for (int i = 0; i < carouselAdapter.getItemCount(); i++) {
             ImageView dot = new ImageView(getContext());
             dot.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.dot_inactive));
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(8, 0, 8, 0);
             dotsIndicator.addView(dot, params);
         }
@@ -200,121 +209,76 @@ public class HomeFragment extends Fragment {
     private void updateDotsIndicator(int position) {
         if (getContext() == null) return;
         for (int i = 0; i < dotsIndicator.getChildCount(); i++) {
-            ImageView dot = (ImageView) dotsIndicator.getChildAt(i);
-            dot.setImageDrawable(ContextCompat.getDrawable(
-                    requireContext(),
-                    i == position ? R.drawable.dot_active : R.drawable.dot_inactive
-            ));
+            ((ImageView) dotsIndicator.getChildAt(i)).setImageDrawable(ContextCompat.getDrawable(requireContext(), i == position ? R.drawable.dot_active : R.drawable.dot_inactive));
         }
     }
 
     // -------------------------------
-    // LISTENERS
-    // -------------------------------
-    private void setupListeners() {
-        seeAllButton.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                BottomNavigationView nav = getActivity().findViewById(R.id.bottom_nav);
-                nav.setSelectedItemId(R.id.nav_search);
-            }
-        });
-    }
-
-    // -------------------------------
-    // LOADING DATA
+    // DATA LOADING LOGIC
     // -------------------------------
     private void loadInitialData() {
         loadUserData();
+        loadFavoritesFromLocalStorage();
+        loadAllProductSections();
+    }
 
-        if (currentUser == null) {
-            loadPopularProducts();
-            return;
+    private void loadFavoritesFromLocalStorage() {
+        if (getContext() == null) return;
+        SharedPreferences prefs = getContext().getSharedPreferences("Favorites", Context.MODE_PRIVATE);
+        favoriteProductIds = new HashSet<>(prefs.getStringSet("favorite_ids", Collections.emptySet()));
+    }
+
+    private void loadAllProductSections() {
+        db.collection("products").orderBy("name").limit(30).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.w(TAG, "No products found in Firestore.");
+                        return;
+                    }
+
+                    List<Product> allProducts = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        Product p = doc.toObject(Product.class);
+                        if (p != null) {
+                            p.setId(doc.getId());
+                            p.setFavorited(favoriteProductIds.contains(p.getId()));
+                            allProducts.add(p);
+                        }
+                    }
+                    distributeProducts(allProducts);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading products for home screen", e);
+                    if (getView() != null) {
+                        Snackbar.make(getView(), "Could not load products. Check Logcat.", Snackbar.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void distributeProducts(List<Product> allProducts) {
+        recommendedProductsList.clear();
+        allProductsGridList.clear();
+
+        for (int i = 0; i < allProducts.size(); i++) {
+            if (i < 10) {
+                recommendedProductsList.add(allProducts.get(i));
+            } else {
+                allProductsGridList.add(allProducts.get(i));
+            }
         }
 
-        db.collection("users").document(currentUser.getUid())
-                .collection("favorites")
-                .get()
-                .addOnSuccessListener(q -> {
-                    favoriteProductIds.clear();
-                    for (QueryDocumentSnapshot d : q) favoriteProductIds.add(d.getId());
-                    loadPopularProducts();
-                });
-    }
-
-    private void loadPopularProducts() {
-        popularProductList.clear();
-
-        db.collection("products")
-                .orderBy("name")
-                .limit(10)
-                .get()
-                .addOnSuccessListener(task -> {
-                    if (task.isEmpty()) return;
-
-                    for (DocumentSnapshot doc : task) {
-                        Product p = doc.toObject(Product.class);
-                        if (p != null) {
-                            p.setId(doc.getId());
-                            p.setFavorited(favoriteProductIds.contains(p.getId()));
-                            popularProductList.add(p);
-                        }
-                    }
-
-                    popularProductAdapter.notifyDataSetChanged();
-                    popularLastVisible = task.getDocuments().get(task.size() - 1);
-                    loadMoreProducts();
-                });
-    }
-
-    private void loadMoreProducts() {
-        if (popularLastVisible == null) return;
-        moreProductsList.clear();
-
-        db.collection("products")
-                .orderBy("name")
-                .startAfter(popularLastVisible)
-                .limit(10)
-                .get()
-                .addOnSuccessListener(task -> {
-                    if (task.isEmpty()) return;
-
-                    for (DocumentSnapshot doc : task) {
-                        Product p = doc.toObject(Product.class);
-                        if (p != null) {
-                            p.setId(doc.getId());
-                            p.setFavorited(favoriteProductIds.contains(p.getId()));
-                            moreProductsList.add(p);
-                        }
-                    }
-
-                    moreProductsAdapter.notifyDataSetChanged();
-                    moreLastVisible = task.getDocuments().get(task.size() - 1);
-                    // Do not load the grid for now to avoid the error
-                    // loadAllProductsGrid(); 
-                });
-    }
-
-    private void loadAllProductsGrid() {
-        // This method is temporarily disabled
+        recommendedProductsAdapter.notifyDataSetChanged();
+        allProductsGridAdapter.notifyDataSetChanged();
     }
 
     private void loadUserData() {
         if (currentUser == null) return;
-
-        db.collection("users").document(currentUser.getUid())
-                .get()
+        db.collection("users").document(currentUser.getUid()).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         String name = doc.getString("name");
-                        greetingText.setText(getGreeting() + ", " + name);
+                        userNameText.setText(name);
                     }
                 });
-    }
-
-    private String getGreeting() {
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        if (hour < 12) return "Good Morning";
-        if (hour < 17) return "Good Afternoon";
-        return "Good Evening";
     }
 }

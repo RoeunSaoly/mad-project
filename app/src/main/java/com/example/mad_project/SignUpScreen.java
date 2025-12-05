@@ -118,14 +118,14 @@ public class SignUpScreen extends AppCompatActivity {
         db.collection("users").document(firebaseUser.getUid())
                 .set(newUser)
                 .addOnCompleteListener(profileTask -> {
+                    setInProgress(false);
                     if (profileTask.isSuccessful()) {
                         Log.d(TAG, "User profile saved.");
-                        showSnackbar("Account created.");
+                        navigateToHome();
                     } else {
                         Log.w(TAG, "Error saving user profile.", profileTask.getException());
                         showSnackbar("Account created but failed to save profile.");
                     }
-                    navigateToHome();
                 });
     }
 
@@ -135,7 +135,7 @@ public class SignUpScreen extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
-    
+
     private void setInProgress(boolean inProgress) {
         progressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
         buttonSignUp.setEnabled(!inProgress);

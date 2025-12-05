@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
+    android:clipToPadding="false"
     tools:context=".HomeFragment">
 
     <LinearLayout
@@ -13,75 +14,87 @@
         android:orientation="vertical"
         android:paddingBottom="16dp">
 
-        <!-- Greeting and Search Bar -->
+        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/greeting_text"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textStyle="bold"
-                tools:text="Good Morning, Jack" />
+                android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/notification_bell"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                <TextView
+                    android:id="@+id/user_name_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    tools:text="Shahzaib Ahmad"/>
+
+                <TextView
+                    android:id="@+id/set_store_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Set store"/>
+
+            </LinearLayout>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_image"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_notifications" />
+                android:src="@drawable/ic_profile" />
 
         </RelativeLayout>
 
-        <com.google.android.material.card.MaterialCardView
+        <!-- Search Bar -->
+        <EditText
+            android:id="@+id/search_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:cardUseCompatPadding="true">
+            android:background="@drawable/search_bar_background"
+            android:drawableStart="@drawable/ic_search_action"
+            android:drawablePadding="12dp"
+            android:hint="Search products..."
+            android:padding="16dp" />
 
-            <EditText
-                android:id="@+id/search_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawableStart="@drawable/ic_search_action"
-                android:drawablePadding="12dp"
-                android:hint="Search for hoodies..."
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:padding="16dp" />
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Carousel -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/carousel_view_pager"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginTop="8dp" />
-
-        <LinearLayout
-            android:id="@+id/dots_indicator"
+        <!-- Carousel ViewPager -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:cardCornerRadius="16dp">
 
-        <!-- Popular Now Section -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/carousel_view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Dots Indicator -->
+        <LinearLayout
+            android:id="@+id/dots_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Category Icons -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
 
@@ -89,12 +102,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:text="Popular Now"
+                android:text="Shop by category"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/see_all_button"
+                android:id="@+id/see_all_categories_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -102,94 +115,66 @@
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/popular_recycler_view"
+            android:id="@+id/category_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:clipToPadding="false"
+            android:orientation="horizontal"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:orientation="horizontal" />
+            android:clipToPadding="false"/>
 
-        <!-- More to Explore Section -->
+        <!-- Recommended Products -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Recommended Products"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/see_all_recommended_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="See All" />
+        </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recommended_products_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:clipToPadding="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"/>
+
+        <!-- All Products Grid Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
-            android:text="More To Explore"
+            android:text="All Products"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/more_products_recycler_view"
+            android:id="@+id/all_products_grid_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="700dp"
             android:layout_marginTop="8dp"
-            android:clipToPadding="false"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:orientation="horizontal" />
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/category_chip_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            app:singleSelection="true">
-
-            <!-- Chips remain the same -->
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_all"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="All"
-                android:checked="true"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_t_shirts"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="T-Shirts"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_hoodies"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hoodies"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_bottoms"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bottoms"/>
-
-        </com.google.android.material.chip.ChipGroup>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/products_recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="4dp" />
-
-        </RelativeLayout>
+            android:nestedScrollingEnabled="false"
+            android:padding="4dp"/>
 
     </LinearLayout>
-
 </ScrollView>

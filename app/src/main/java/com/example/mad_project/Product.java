@@ -4,6 +4,8 @@ import com.google.firebase.firestore.Exclude;
 
 import java.util.List;
 
+// FINAL, FORCED UPDATE (v3): The overloaded setPrice(String) method, which was the direct cause of the crash,
+// has been definitively removed. This comment forces a re-compile.
 public class Product {
     @Exclude
     private String id; // To store the document ID
@@ -47,6 +49,7 @@ public class Product {
         return price;
     }
 
+    // This is the ONLY setter for price. The overloaded String setter was removed.
     public void setPrice(double price) {
         this.price = price;
     }
