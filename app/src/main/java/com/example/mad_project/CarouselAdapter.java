@@ -3,9 +3,9 @@ package com.example.mad_project;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,7 +13,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.CarouselViewHolder> {
+public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHolder> {
 
     private final List<CarouselItem> carouselItems;
 
@@ -23,17 +23,17 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
 
     @NonNull
     @Override
-    public CarouselViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CarouselViewHolder(
-                LayoutInflater.from(parent.getContext()).inflate(
-                        R.layout.carousel_item, parent, false
-                )
-        );
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_carousel, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CarouselViewHolder holder, int position) {
-        holder.bind(carouselItems.get(position));
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        CarouselItem item = carouselItems.get(position);
+        holder.carouselTitle.setText(item.getTitle());
+        holder.carouselDescription.setText(item.getDescription());
+        Glide.with(holder.itemView.getContext()).load(item.getImageResId()).into(holder.carouselImage);
     }
 
     @Override
@@ -41,51 +41,18 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
         return carouselItems.size();
     }
 
-    static class CarouselViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView carouselImage;
+        TextView carouselTitle;
+        TextView carouselDescription;
+        Button allFitnessButton;
 
-        private final ImageView imageView;
-        private final TextView titleView;
-        private final TextView descriptionView;
-
-        CarouselViewHolder(View view) {
-            super(view);
-            imageView = view.findViewById(R.id.carousel_image);
-            titleView = view.findViewById(R.id.carousel_title);
-            descriptionView = view.findViewById(R.id.carousel_description);
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            carouselImage = itemView.findViewById(R.id.carousel_image);
+            carouselTitle = itemView.findViewById(R.id.carousel_title);
+            carouselDescription = itemView.findViewById(R.id.carousel_description);
+            allFitnessButton = itemView.findViewById(R.id.all_fitness_button);
         }
-
-        void bind(CarouselItem carouselItem) {
-            titleView.setText(carouselItem.getTitle());
-            descriptionView.setText(carouselItem.getDescription());
-
-            Glide.with(itemView.getContext())
-                    .load(carouselItem.getImageUrl())
-                    .into(imageView);
-        }
-    }
-}
-
-// A simple data class for the carousel items
-class CarouselItem {
-    private final String title;
-    private final String description;
-    private final String imageUrl;
-
-    public CarouselItem(String title, String description, String imageUrl) {
-        this.title = title;
-        this.description = description;
-        this.imageUrl = imageUrl;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
     }
 }
