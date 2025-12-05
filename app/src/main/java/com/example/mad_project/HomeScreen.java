@@ -24,10 +24,10 @@ public class HomeScreen extends AppCompatActivity {
 
         ViewPager2 viewPager = findViewById(R.id.carouselViewPager);
 
-        List<Integer> imageList = new ArrayList<>();
-        imageList.add(R.drawable.id1);
-        imageList.add(R.drawable.id1);
-        imageList.add(R.drawable.id1);
+        List<CarouselItem> imageList = new ArrayList<>();
+        imageList.add(new CarouselItem("Title 1", "Description 1", R.drawable.id1));
+        imageList.add(new CarouselItem("Title 2", "Description 2", R.drawable.id1));
+        imageList.add(new CarouselItem("Title 3", "Description 3", R.drawable.id1));
 
         CarouselAdapter adapter = new CarouselAdapter(imageList);
         viewPager.setAdapter(adapter);
