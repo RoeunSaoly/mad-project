@@ -68,28 +68,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="All"
-            android:checked="true"/>
+            android:checked="true"
+            app:chipBackgroundColor="@color/light_gray"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_t_shirts"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="T-Shirts"/>
+            android:text="T-Shirts"
+            app:chipBackgroundColor="@color/light_gray"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_hoodies"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hoodies"/>
+            android:text="Hoodies"
+            app:chipBackgroundColor="@color/light_gray"/>
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_bottoms"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bottoms"/>
+            android:text="Bottoms"
+            app:chipBackgroundColor="@color/light_gray"
+            />
 
     </com.google.android.material.chip.ChipGroup>
 
