@@ -47,14 +47,12 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHo
         ImageView carouselImage;
         TextView carouselTitle;
         TextView carouselDescription;
-        Button allFitnessButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             carouselImage = itemView.findViewById(R.id.carousel_image);
             carouselTitle = itemView.findViewById(R.id.carousel_title);
             carouselDescription = itemView.findViewById(R.id.carousel_description);
-            allFitnessButton = itemView.findViewById(R.id.all_fitness_button);
         }
     }
 }

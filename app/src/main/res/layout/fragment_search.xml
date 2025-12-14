@@ -61,7 +61,6 @@
         android:padding="8dp"
         app:singleSelection="true">
 
-        <!-- Chips remain the same -->
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_all"
             style="@style/Widget.MaterialComponents.Chip.Choice"
@@ -69,7 +68,8 @@
             android:layout_height="wrap_content"
             android:text="All"
             android:checked="true"
-            app:chipBackgroundColor="@color/light_gray"/>
+            android:textColor="@color/chip_text_state"
+            app:chipBackgroundColor="@color/chip_background_state" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_t_shirts"
@@ -77,7 +77,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="T-Shirts"
-            app:chipBackgroundColor="@color/light_gray"/>
+            android:textColor="@color/chip_text_state"
+            app:chipBackgroundColor="@color/chip_background_state" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_hoodies"
@@ -85,7 +86,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Hoodies"
-            app:chipBackgroundColor="@color/light_gray"/>
+            android:textColor="@color/chip_text_state"
+            app:chipBackgroundColor="@color/chip_background_state" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_bottoms"
@@ -93,10 +95,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bottoms"
-            app:chipBackgroundColor="@color/light_gray"
-            />
+            android:textColor="@color/chip_text_state"
+            app:chipBackgroundColor="@color/chip_background_state" />
 
     </com.google.android.material.chip.ChipGroup>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
