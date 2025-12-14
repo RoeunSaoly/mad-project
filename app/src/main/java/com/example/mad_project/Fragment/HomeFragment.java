@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mad_project.Adapter.CarouselAdapter;
+import com.example.mad_project.Adapter.RecommendedItemAdapter;
 import com.example.mad_project.CarouselItem;
 import com.example.mad_project.Category;
 import com.example.mad_project.Adapter.CategoryAdapter;
@@ -54,7 +55,8 @@ public class HomeFragment extends Fragment {
 
     // Adapters
     private CategoryAdapter categoryAdapter;
-    private ProductAdapter recommendedProductsAdapter, allProductsGridAdapter;
+    private ProductAdapter  allProductsGridAdapter;
+    private RecommendedItemAdapter recommendedProductsAdapter;
     private CarouselAdapter carouselAdapter;
 
     // Data lists
@@ -128,7 +130,7 @@ public class HomeFragment extends Fragment {
         if (getContext() == null) return;
         setupCategoryRecyclerView();
 
-        recommendedProductsAdapter = new ProductAdapter(getContext(), recommendedProductsList);
+        recommendedProductsAdapter = new RecommendedItemAdapter(getContext(), recommendedProductsList);
         recommendedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recommendedProductsRecyclerView.setAdapter(recommendedProductsAdapter);
 
