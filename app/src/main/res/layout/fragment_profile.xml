@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".ProfileFragment">
+    tools:context=".Fragment.ProfileFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:padding="16dp">
 
         <ProgressBar
@@ -51,48 +52,87 @@
                 android:layout_height="wrap_content"
                 tools:text="Phnom Penh" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/edit_profile_button"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Edit Profile" />
+                android:text="Edit Profile"
+                android:textColor="@color/black"
+                app:strokeColor="@color/black"
+                app:strokeWidth="1dp"
+                app:cornerRadius="50dp"
+                />
+
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/orders_button"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawableTop="@drawable/ic_orders"
-                android:text="Orders" />
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
 
-            <Button
-                android:id="@+id/favorites_button"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawableTop="@drawable/ic_favorite_border"
-                android:text="Favorites" />
+                <Button
+                    android:id="@+id/orders_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:drawableTop="@drawable/ic_orders"
+                    android:text="Orders" />
 
-            <Button
-                android:id="@+id/settings_button"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Orders" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:drawableTop="@drawable/ic_settings"
-                android:text="Settings" />
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+                <Button
+                    android:id="@+id/favorites_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:drawableTop="@drawable/ic_favorite_border"
+                    android:text="Favorites" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Favorites" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+                <Button
+                    android:id="@+id/settings_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:drawableTop="@drawable/ic_settings"
+                    android:text="Settings" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Settings" />
+
+            </LinearLayout>
         </LinearLayout>
 
         <View
@@ -106,38 +146,45 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:drawableEnd="@drawable/baseline_arrow_back_ios_24"
+            android:drawableEnd="@drawable/outline_arrow_forward_ios_24"
             android:gravity="start|center_vertical"
             android:text="Help Center"
             android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:textColor="?android:attr/textColorPrimary" />
 
         <TextView
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/baseline_arrow_back_ios_24"
+            android:drawableEnd="@drawable/outline_arrow_forward_ios_24"
             android:gravity="start|center_vertical"
             android:text="Payment Methods"
             android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:textColor="?android:attr/textColorPrimary" />
 
         <TextView
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableEnd="@drawable/baseline_arrow_back_ios_24"
+            android:drawableEnd="@drawable/outline_arrow_forward_ios_24"
             android:gravity="start|center_vertical"
             android:text="Addresses"
             android:textAllCaps="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:textColor="?android:attr/textColorPrimary" />
             
         <Button
             android:id="@+id/logout_button"
-            android:layout_width="match_parent"
+            android:layout_width="100sp"
             android:layout_height="wrap_content"
+            android:backgroundTint="#000000"
             android:layout_marginTop="32dp"
-            android:text="Logout" />
+            android:text="Log out" />
 
     </LinearLayout>
 

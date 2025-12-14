@@ -1,4 +1,4 @@
-package com.example.mad_project;
+package com.example.mad_project.Fragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -21,17 +21,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.mad_project.Adapter.CarouselAdapter;
+import com.example.mad_project.Adapter.RecommendedItemAdapter;
+import com.example.mad_project.CarouselItem;
+import com.example.mad_project.Category;
+import com.example.mad_project.Adapter.CategoryAdapter;
+import com.example.mad_project.Product;
+import com.example.mad_project.Adapter.ProductAdapter;
+import com.example.mad_project.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +55,8 @@ public class HomeFragment extends Fragment {
 
     // Adapters
     private CategoryAdapter categoryAdapter;
-    private ProductAdapter recommendedProductsAdapter, allProductsGridAdapter;
+    private ProductAdapter  allProductsGridAdapter;
+    private RecommendedItemAdapter recommendedProductsAdapter;
     private CarouselAdapter carouselAdapter;
 
     // Data lists
@@ -124,7 +130,7 @@ public class HomeFragment extends Fragment {
         if (getContext() == null) return;
         setupCategoryRecyclerView();
 
-        recommendedProductsAdapter = new ProductAdapter(getContext(), recommendedProductsList);
+        recommendedProductsAdapter = new RecommendedItemAdapter(getContext(), recommendedProductsList);
         recommendedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         recommendedProductsRecyclerView.setAdapter(recommendedProductsAdapter);
 

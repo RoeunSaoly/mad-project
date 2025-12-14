@@ -1,4 +1,4 @@
-package com.example.mad_project;
+package com.example.mad_project.Adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mad_project.CarouselItem;
+import com.example.mad_project.R;
 
 import java.util.List;
 
@@ -45,14 +47,12 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHo
         ImageView carouselImage;
         TextView carouselTitle;
         TextView carouselDescription;
-        Button allFitnessButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             carouselImage = itemView.findViewById(R.id.carousel_image);
             carouselTitle = itemView.findViewById(R.id.carousel_title);
             carouselDescription = itemView.findViewById(R.id.carousel_description);
-            allFitnessButton = itemView.findViewById(R.id.all_fitness_button);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.mad_project;
+package com.example.mad_project.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -21,6 +21,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mad_project.Product;
+import com.example.mad_project.Adapter.ProductAdapter;
+import com.example.mad_project.R;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;

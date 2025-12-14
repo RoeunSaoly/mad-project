@@ -6,6 +6,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+
+import com.example.mad_project.Fragment.BagFragment;
+import com.example.mad_project.Fragment.HeartFragment;
+import com.example.mad_project.Fragment.HomeFragment;
+import com.example.mad_project.Fragment.ProfileFragment;
+import com.example.mad_project.Fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class HomeActivity extends AppCompatActivity {
