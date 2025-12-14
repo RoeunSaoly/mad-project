@@ -42,7 +42,7 @@ public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItem
     @NonNull
     @Override
     public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.product_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.recommended_item_layout, parent, false);
         return new ProductViewHolder(view);
     }
 
@@ -111,11 +111,11 @@ public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItem
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            productImage = itemView.findViewById(R.id.product_image);
+            productImage = itemView.findViewById(R.id.imageView);
             favoriteButton = itemView.findViewById(R.id.favorite_button);
-            productName = itemView.findViewById(R.id.product_name);
-            productDescription = itemView.findViewById(R.id.product_description);
-            productPrice = itemView.findViewById(R.id.product_price);
+            productName = itemView.findViewById(R.id.name);
+            productDescription = itemView.findViewById(R.id.description);
+            productPrice = itemView.findViewById(R.id.price);
         }
     }
 }
