@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Madproject">
         <activity
+            android:name=".ExplorePage"
+            android:exported="false" />
+        <activity
             android:name=".HomeActivity"
             android:exported="false" />
         <activity

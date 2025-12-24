@@ -1,6 +1,7 @@
 package com.example.mad_project.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,9 +10,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mad_project.ExplorePage;
 import com.example.mad_project.Product;
 import com.example.mad_project.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -86,6 +89,13 @@ public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItem
                         .addOnSuccessListener(aVoid -> Log.d(TAG, "Removed from favorites: " + product.getId()))
                         .addOnFailureListener(e -> Log.w(TAG, "Error removing from favorites", e));
             }
+        });
+
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ExplorePage.class);
+            intent.putExtra("productId", product.getId());
+            context.startActivity(intent);
         });
     }
 

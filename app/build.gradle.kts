@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.mad_project"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.mad_project"
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.firebase.storage)
 
     implementation(libs.glide)
+    implementation(libs.activity)
     kapt(libs.glide.compiler)
 
     implementation(libs.circleimageview)
