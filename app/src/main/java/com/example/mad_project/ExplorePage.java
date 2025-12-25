@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +17,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.mad_project.db.BagItem;
+import com.example.mad_project.db.DatabaseClient;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -38,6 +41,7 @@ public class ExplorePage extends AppCompatActivity {
         TextView Description2 = findViewById(R.id.Description2);
         TextView price = findViewById(R.id.price);
         ImageView images = findViewById(R.id.image);
+        Button addToBagButton = findViewById(R.id.button);
 
 
 
@@ -74,6 +78,25 @@ public class ExplorePage extends AppCompatActivity {
 
         back_btn.setOnClickListener(v -> {
             finish();
+        });
+
+        addToBagButton.setOnClickListener(v -> {
+            String productName = product.getStringExtra("Name");
+            String productPrice = product.getStringExtra("Price");
+            String productImageUrl = product.getStringExtra("img");
+
+            BagItem cartItem = new BagItem();
+            cartItem.name = productName;
+            cartItem.price = productPrice;
+            cartItem.imageUrl = productImageUrl;
+            cartItem.amount = 1;
+
+            new Thread(() -> {
+                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                        .bagDao()
+                        .insert(cartItem);
+                runOnUiThread(() -> Toast.makeText(ExplorePage.this, "Added to bag", Toast.LENGTH_SHORT).show());
+            }).start();
         });
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
