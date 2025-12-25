@@ -72,7 +72,7 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 30;
     private DocumentSnapshot lastVisible;
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -255,7 +255,10 @@ public class HomeFragment extends Fragment {
     private void loadProducts() {
         if (isLastPage || isLoading) return;
 
-        Query query = db.collection("products").orderBy("name");
+
+        Query query = db.collection("products")
+                .orderBy("name")
+                .limit(PAGE_SIZE);
 
         if (selectedCategory != null) {
             query = query.whereEqualTo("category", selectedCategory);
@@ -271,19 +274,36 @@ public class HomeFragment extends Fragment {
         }
 
         query.get().addOnCompleteListener(task -> {
+
             if (task.isSuccessful()) {
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
-                for (DocumentSnapshot document : documents) {
+
+                // Clear the lists only when it's a fresh load (not pagination)
+                if (lastVisible == null) {
+                    recommendedProductsList.clear();
+                    allProductsGridList.clear();
+                }
+
+                for (int i = 0; i < documents.size(); i++) {
+                    DocumentSnapshot document = documents.get(i);
                     Product product = document.toObject(Product.class);
                     if (product != null) {
                         product.setId(document.getId());
                         if (favoriteProductIds.contains(product.getId())) {
                             product.setFavorited(true);
                         }
-                        recommendedProductsList.add(product);
+
+                        if (lastVisible == null && i < 10) {
+                            recommendedProductsList.add(product);
+                        } else {
+                            allProductsGridList.add(product);
+                        }
                     }
                 }
+
+                // Notify both adapters that their data has changed.
                 recommendedProductsAdapter.notifyDataSetChanged();
+                allProductsGridAdapter.notifyDataSetChanged();
 
                 if (!documents.isEmpty()) {
                     lastVisible = documents.get(documents.size() - 1);
