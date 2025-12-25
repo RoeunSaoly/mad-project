@@ -85,16 +85,16 @@ public class ExplorePage extends AppCompatActivity {
             String productPrice = product.getStringExtra("Price");
             String productImageUrl = product.getStringExtra("img");
 
-            BagItem cartItem = new BagItem();
-            cartItem.name = productName;
-            cartItem.price = productPrice;
-            cartItem.imageUrl = productImageUrl;
-            cartItem.amount = 1;
+            BagItem BagItem = new BagItem();
+            BagItem.name = productName;
+            BagItem.price = productPrice;
+            BagItem.imageUrl = productImageUrl;
+            BagItem.amount = 1;
 
             new Thread(() -> {
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                         .bagDao()
-                        .insert(cartItem);
+                        .insert(BagItem);
                 runOnUiThread(() -> Toast.makeText(ExplorePage.this, "Added to bag", Toast.LENGTH_SHORT).show());
             }).start();
         });
