@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        >
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/back_btn"
@@ -31,10 +31,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
+            android:text="TextView"
             android:textAlignment="center"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:text="TextView" />
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/action_filter"
@@ -53,17 +53,27 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/images"
-        android:layout_width="330dp"
-        android:layout_height="360dp"
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="460dp"
         android:layout_marginTop="20dp"
-        android:background="@color/grey"
-        android:scaleType="centerCrop"
-        tools:srcCompat="@tools:sample/avatars" />
+        android:background="#F6F6F6"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        >
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="380dp"
+            android:layout_height="420dp"
+            android:layout_gravity="center"
+            android:background="@color/grey"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@tools:sample/avatars" />
+    </androidx.cardview.widget.CardView>
+
 
     <RelativeLayout
-        android:layout_width="330dp"
+        android:layout_width="380dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
         <LinearLayout
@@ -72,15 +82,17 @@
             android:orientation="vertical"
             android:layout_alignParentStart="true">
             <TextView
+                android:id="@+id/name1"
                 android:layout_width="160dp"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:text="Name" />
             <TextView
+                android:id="@+id/Description"
                 android:layout_width="160dp"
                 android:layout_height="wrap_content"
-                android:text="Description"
+                android:text="Oversized clean drip"
                 android:textColor="@color/grey"/>
 
         </LinearLayout>
@@ -97,12 +109,14 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:text="Rating" />
+
             <TextView
+                android:id="@+id/price"
                 android:layout_width="160dp"
                 android:layout_height="wrap_content"
+                android:text="Price"
                 android:textAlignment="textEnd"
-                android:textStyle="bold"
-                android:text="Price" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -110,7 +124,7 @@
 
     <TextView
         android:id="@+id/textView12"
-        android:layout_width="330dp"
+        android:layout_width="380dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:textStyle="bold"
@@ -118,9 +132,9 @@
 
     <TextView
         android:id="@+id/Description2"
-        android:layout_width="330dp"
+        android:layout_width="380dp"
         android:layout_height="wrap_content"
-        android:text="Description" />
+        android:text="Break the streetwear code with the Street Flow Tee – built for movement, styled for the spotlight. Crafted from ultra-soft, breathable" />
 
     <LinearLayout
         android:layout_width="wrap_content"
