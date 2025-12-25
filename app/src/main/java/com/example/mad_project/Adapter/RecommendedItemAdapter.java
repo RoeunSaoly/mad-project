@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -28,7 +27,7 @@ import java.util.Map;
 
 public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItemAdapter.ProductViewHolder> {
 
-    private static final String TAG = "ProductAdapter";
+    private static final String TAG = "RecommendedItemAdapter";
 
     private final Context context;
     private final List<Product> productList;
