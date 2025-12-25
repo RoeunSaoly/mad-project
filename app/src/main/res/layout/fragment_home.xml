@@ -148,15 +148,28 @@
                 android:text="See All" />
         </RelativeLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recommended_products_recycler_view"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal"
-            android:clipToPadding="false"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"/>
+            android:layout_height="330dp">
+
+            <ProgressBar
+                android:id="@+id/home_progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recommended_products_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"/>
+
+        </RelativeLayout>
 
         <!-- All Products Grid Section -->
         <TextView
@@ -168,13 +181,27 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/all_products_grid_recycler_view"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="700dp"
-            android:layout_marginTop="8dp"
-            android:nestedScrollingEnabled="false"
-            android:padding="4dp"/>
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/home_progress_bar2"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_centerInParent="true"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/all_products_grid_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="700dp"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
+                android:padding="4dp"/>
+
+        </RelativeLayout>
+
 
     </LinearLayout>
 </ScrollView>

@@ -78,6 +78,8 @@ public class HomeFragment extends Fragment {
     private boolean isLastPage = false;
     private String selectedCategory = null;
     private String currentSearchTerm = null;
+    private ProgressBar homeProgressBar;
+    private ProgressBar home_progress_bar2;
     // Carousel
     private final Handler carouselHandler = new Handler(Looper.getMainLooper());
     private Runnable carouselRunnable;
@@ -127,6 +129,8 @@ public class HomeFragment extends Fragment {
         seeAllRecommendedButton = view.findViewById(R.id.see_all_recommended_button);
         carouselViewPager = view.findViewById(R.id.carousel_view_pager);
         dotsIndicator = view.findViewById(R.id.dots_indicator);
+        homeProgressBar = view.findViewById(R.id.home_progress_bar);
+        home_progress_bar2 = view.findViewById(R.id.home_progress_bar2);
 
         categoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         recommendedProductsRecyclerView = view.findViewById(R.id.recommended_products_recycler_view);
@@ -254,7 +258,7 @@ public class HomeFragment extends Fragment {
 
     private void loadProducts() {
         if (isLastPage || isLoading) return;
-
+        setInProgress(true);
 
         Query query = db.collection("products")
                 .orderBy("name")
@@ -274,7 +278,7 @@ public class HomeFragment extends Fragment {
         }
 
         query.get().addOnCompleteListener(task -> {
-
+            setInProgress(false);
             if (task.isSuccessful()) {
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
 
@@ -332,5 +336,15 @@ public class HomeFragment extends Fragment {
                         userNameText.setText(name);
                     }
                 });
+    }
+
+    private void setInProgress(boolean inProgress) {
+        isLoading = inProgress;
+        if (homeProgressBar != null) {
+            homeProgressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        }
+        if (home_progress_bar2 != null) {
+            home_progress_bar2.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        }
     }
 }
