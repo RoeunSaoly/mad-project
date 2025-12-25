@@ -67,9 +67,6 @@ public class HeartFragment extends Fragment {
         productsRecyclerView.setAdapter(productAdapter);
     }
 
-    /**
-     * Step 1: Fetch the list of favorite product IDs from the user's sub-collection.
-     */
     private void loadFavoriteProductIds() {
         if (currentUser == null) {
             Log.w(TAG, "No user logged in. Cannot load favorites.");
@@ -89,11 +86,9 @@ public class HeartFragment extends Fragment {
                             favoriteProductIds.add(doc.getId());
                         }
 
-                        // If the user has favorites, load the product details for each one.
                         if (!favoriteProductIds.isEmpty()) {
                             loadFavoriteProducts(new ArrayList<>(favoriteProductIds));
                         } else {
-                            // If the list of favorites is empty, stop loading and show the message.
                             setInProgress(false);
                             showEmptyMessage(true);
                         }
@@ -104,9 +99,6 @@ public class HeartFragment extends Fragment {
                 });
     }
 
-    /**
-     * Step 2: Fetch the full product details for each favorite product ID.
-     */
     private void loadFavoriteProducts(List<String> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             setInProgress(false);
@@ -121,7 +113,7 @@ public class HeartFragment extends Fragment {
 
         // Use Tasks.whenAllSuccess() to wait for all product fetches to complete.
         Tasks.whenAllSuccess(tasks).addOnCompleteListener(task -> {
-            productList.clear(); // Clear the list before adding new items
+            productList.clear();
             if (task.isSuccessful() && task.getResult() != null) {
                 for (Object snapshotObject : task.getResult()) {
                     DocumentSnapshot snapshot = (DocumentSnapshot) snapshotObject;
@@ -129,7 +121,7 @@ public class HeartFragment extends Fragment {
                         Product product = snapshot.toObject(Product.class);
                         if (product != null) {
                             product.setId(snapshot.getId());
-                            // We already know this is a favorite, so we can force it to be true.
+
                             product.setFavorited(true);
                             productList.add(product);
                         }
