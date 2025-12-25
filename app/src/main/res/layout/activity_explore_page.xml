@@ -31,6 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
+            android:maxHeight="44dp"
             android:text="TextView"
             android:textAlignment="center"
             android:textSize="18sp"
@@ -66,8 +67,7 @@
             android:layout_width="380dp"
             android:layout_height="420dp"
             android:layout_gravity="center"
-            android:background="@color/grey"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             tools:srcCompat="@tools:sample/avatars" />
     </androidx.cardview.widget.CardView>
 
@@ -83,15 +83,17 @@
             android:layout_alignParentStart="true">
             <TextView
                 android:id="@+id/name1"
-                android:layout_width="160dp"
+                android:layout_width="260dp"
                 android:layout_height="wrap_content"
+                android:maxHeight="40dp"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:text="Name" />
             <TextView
                 android:id="@+id/Description"
-                android:layout_width="160dp"
+                android:layout_width="260dp"
                 android:layout_height="wrap_content"
+                android:maxHeight="80dp"
                 android:text="Oversized clean drip"
                 android:textColor="@color/grey"/>
 
@@ -101,19 +103,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:gravity="right"
             android:layout_alignParentEnd="true">
             <TextView
-                android:layout_width="160dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAlignment="textEnd"
+                android:maxWidth="100dp"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:text="Rating" />
 
             <TextView
                 android:id="@+id/price"
-                android:layout_width="160dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="100dp"
                 android:text="Price"
                 android:textAlignment="textEnd"
                 android:textStyle="bold" />

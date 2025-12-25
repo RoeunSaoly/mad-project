@@ -36,19 +36,29 @@ public class ExplorePage extends AppCompatActivity {
         TextView name = findViewById(R.id.name);
         TextView name1 = findViewById(R.id.name1);
         TextView Description2 = findViewById(R.id.Description2);
-        TextView Description = findViewById(R.id.Description);
         TextView price = findViewById(R.id.price);
         ImageView images = findViewById(R.id.image);
 
 
 
         Intent product = getIntent();
-        name.setText(product.getStringExtra("Name"));
-        name1.setText(product.getStringExtra("Name"));
-        price.setText(product.getStringExtra("Price"));
-        String imageUrl = product.getStringExtra("img");
-        Glide.with(this).load(imageUrl).into(images);
-
+//        if (product.getStringExtra("Description") != null)
+//            Log.d("TAG", "onCreate: " + product.getStringExtra("Description"));
+//            Description2.setText(product.getStringExtra("Description")
+//            );
+        if (product.getStringExtra("Name") != null)
+            name.setText(product.getStringExtra("Name")
+            );
+        if (product.getStringExtra("Price") != null)
+            name1.setText(product.getStringExtra("Name")
+            );
+        if (product.getStringExtra("Price") != null)
+            price.setText(product.getStringExtra("Price")
+            );
+        if (product.getStringExtra("img") != null) {
+            String imageUrl = product.getStringExtra("img");
+            Glide.with(this).load(imageUrl).into(images);
+        }
 
         Size_select.add("S");
         Size_select.add("M");
