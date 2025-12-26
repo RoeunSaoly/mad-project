@@ -1,6 +1,7 @@
 package com.example.mad_project.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.mad_project.ExplorePage;
 import com.example.mad_project.Product;
 import com.example.mad_project.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,7 +27,7 @@ import java.util.Map;
 
 public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItemAdapter.ProductViewHolder> {
 
-    private static final String TAG = "ProductAdapter";
+    private static final String TAG = "RecommendedItemAdapter";
 
     private final Context context;
     private final List<Product> productList;
@@ -86,6 +88,17 @@ public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItem
                         .addOnSuccessListener(aVoid -> Log.d(TAG, "Removed from favorites: " + product.getId()))
                         .addOnFailureListener(e -> Log.w(TAG, "Error removing from favorites", e));
             }
+        });
+
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ExplorePage.class);
+            intent.putExtra("Name", product.getName());
+            intent.putExtra("Description", product.getDescription());
+            intent.putExtra("Price", String.format(Locale.US, "$%.2f USD", product.getPrice()));
+            intent.putExtra("img", product.getFirstImageUrl());
+
+            context.startActivity(intent);
         });
     }
 

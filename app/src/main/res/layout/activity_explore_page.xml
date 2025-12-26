@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:gravity="center_horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ExplorePage">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:textColor="@color/black"
+            app:drawableLeftCompat="@drawable/baseline_arrow_back_ios_24" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:maxHeight="44dp"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/action_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:src="@drawable/ic_filter" />
+
+        <ImageView
+            android:id="@+id/action_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:src="@drawable/ic_search_action" />
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="460dp"
+        android:layout_marginTop="20dp"
+        android:background="#F6F6F6"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        >
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="380dp"
+            android:layout_height="420dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            tools:srcCompat="@tools:sample/avatars" />
+    </androidx.cardview.widget.CardView>
+
+
+    <RelativeLayout
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentStart="true">
+            <TextView
+                android:id="@+id/name1"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:maxHeight="40dp"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="Name" />
+            <TextView
+                android:id="@+id/Description"
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:maxHeight="80dp"
+                android:text="Oversized clean drip"
+                android:textColor="@color/grey"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="right"
+            android:layout_alignParentEnd="true">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="textEnd"
+                android:maxWidth="100dp"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="Rating" />
+
+            <TextView
+                android:id="@+id/price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="100dp"
+                android:text="Price"
+                android:textAlignment="textEnd"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:textStyle="bold"
+        android:text="Description" />
+
+    <TextView
+        android:id="@+id/Description2"
+        android:layout_width="380dp"
+        android:layout_height="wrap_content"
+        android:text="Break the streetwear code with the Street Flow Tee – built for movement, styled for the spotlight. Crafted from ultra-soft, breathable" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="100dp"
+            android:layout_height="42dp"
+            android:textAlignment="center"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/spinner_border"
+            />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/black"
+            android:layout_marginStart="10dp"
+            android:text="Add to bag" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

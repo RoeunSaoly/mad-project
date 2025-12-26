@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +36,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +72,14 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
-
+    private static final int PAGE_SIZE = 30;
+    private DocumentSnapshot lastVisible;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private String selectedCategory = null;
+    private String currentSearchTerm = null;
+    private ProgressBar homeProgressBar;
+    private ProgressBar home_progress_bar2;
     // Carousel
     private final Handler carouselHandler = new Handler(Looper.getMainLooper());
     private Runnable carouselRunnable;
@@ -120,6 +129,8 @@ public class HomeFragment extends Fragment {
         seeAllRecommendedButton = view.findViewById(R.id.see_all_recommended_button);
         carouselViewPager = view.findViewById(R.id.carousel_view_pager);
         dotsIndicator = view.findViewById(R.id.dots_indicator);
+        homeProgressBar = view.findViewById(R.id.home_progress_bar);
+        home_progress_bar2 = view.findViewById(R.id.home_progress_bar2);
 
         categoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         recommendedProductsRecyclerView = view.findViewById(R.id.recommended_products_recycler_view);
@@ -224,59 +235,98 @@ public class HomeFragment extends Fragment {
     // -------------------------------
     private void loadInitialData() {
         loadUserData();
-        loadFavoritesFromLocalStorage();
-        loadAllProductSections();
+        loadFavoritesAndThenProducts();
     }
 
-    private void loadFavoritesFromLocalStorage() {
-        if (getContext() == null) return;
-        SharedPreferences prefs = getContext().getSharedPreferences("Favorites", Context.MODE_PRIVATE);
-        favoriteProductIds = new HashSet<>(prefs.getStringSet("favorite_ids", Collections.emptySet()));
-    }
+    private void loadFavoritesAndThenProducts() {
+        if (currentUser == null) {
+            loadProducts();
+            return;
+        }
 
-    private void loadAllProductSections() {
-        db.collection("products").orderBy("name").limit(30).get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        Log.w(TAG, "No products found in Firestore.");
-                        return;
-                    }
-
-                    List<Product> allProducts = new ArrayList<>();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        Product p = doc.toObject(Product.class);
-                        if (p != null) {
-                            p.setId(doc.getId());
-                            p.setFavorited(favoriteProductIds.contains(p.getId()));
-                            allProducts.add(p);
+        db.collection("users").document(currentUser.getUid()).collection("favorites").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        favoriteProductIds.clear();
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            favoriteProductIds.add(doc.getId());
                         }
                     }
-                    distributeProducts(allProducts);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading products for home screen", e);
-                    if (getView() != null) {
-                        Snackbar.make(getView(), "Could not load products. Check Logcat.", Snackbar.LENGTH_LONG).show();
-                    }
+                    loadProducts();
                 });
     }
 
-    private void distributeProducts(List<Product> allProducts) {
-        recommendedProductsList.clear();
-        allProductsGridList.clear();
+    private void loadProducts() {
+        if (isLastPage || isLoading) return;
+        setInProgress(true);
 
-        for (int i = 0; i < allProducts.size(); i++) {
-            if (i < 10) {
-                recommendedProductsList.add(allProducts.get(i));
-            } else {
-                allProductsGridList.add(allProducts.get(i));
-            }
+        Query query = db.collection("products")
+                .orderBy("name")
+                .limit(PAGE_SIZE);
+
+        if (selectedCategory != null) {
+            query = query.whereEqualTo("category", selectedCategory);
         }
 
-        recommendedProductsAdapter.notifyDataSetChanged();
-        allProductsGridAdapter.notifyDataSetChanged();
+        if (currentSearchTerm != null && !currentSearchTerm.isEmpty()) {
+            query = query.whereGreaterThanOrEqualTo("name", currentSearchTerm)
+                    .whereLessThanOrEqualTo("name", currentSearchTerm + "\uf8ff");
+        }
+
+        if (lastVisible != null) {
+            query = query.startAfter(lastVisible);
+        }
+
+        query.get().addOnCompleteListener(task -> {
+            setInProgress(false);
+            if (task.isSuccessful()) {
+                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+
+                // Clear the lists only when it's a fresh load (not pagination)
+                if (lastVisible == null) {
+                    recommendedProductsList.clear();
+                    allProductsGridList.clear();
+                }
+
+                for (int i = 0; i < documents.size(); i++) {
+                    DocumentSnapshot document = documents.get(i);
+                    Product product = document.toObject(Product.class);
+                    if (product != null) {
+                        product.setId(document.getId());
+                        if (favoriteProductIds.contains(product.getId())) {
+                            product.setFavorited(true);
+                        }
+
+                        if (lastVisible == null && i < 10) {
+                            recommendedProductsList.add(product);
+                        } else {
+                            allProductsGridList.add(product);
+                        }
+                    }
+                }
+
+                // Notify both adapters that their data has changed.
+                recommendedProductsAdapter.notifyDataSetChanged();
+                allProductsGridAdapter.notifyDataSetChanged();
+
+                if (!documents.isEmpty()) {
+                    lastVisible = documents.get(documents.size() - 1);
+                }
+                if (documents.size() < PAGE_SIZE) {
+                    isLastPage = true;
+                }
+            } else {
+                Log.w(TAG, "Error getting documents.", task.getException());
+                showSnackbar("Failed to load products.");
+            }
+        });
     }
 
+    private void showSnackbar(String message) {
+        if (getView() != null) {
+            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+        }
+    }
     private void loadUserData() {
         if (currentUser == null) return;
         db.collection("users").document(currentUser.getUid()).get()
@@ -286,5 +336,15 @@ public class HomeFragment extends Fragment {
                         userNameText.setText(name);
                     }
                 });
+    }
+
+    private void setInProgress(boolean inProgress) {
+        isLoading = inProgress;
+        if (homeProgressBar != null) {
+            homeProgressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        }
+        if (home_progress_bar2 != null) {
+            home_progress_bar2.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        }
     }
 }

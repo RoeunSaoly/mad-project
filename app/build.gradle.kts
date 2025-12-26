@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.mad_project"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.mad_project"
@@ -53,9 +53,14 @@ dependencies {
     implementation(libs.firebase.storage)
 
     implementation(libs.glide)
+    implementation(libs.activity)
     kapt(libs.glide.compiler)
 
     implementation(libs.circleimageview)
+
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
