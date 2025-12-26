@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.mad_project.R;
 import com.example.mad_project.db.BagItem;
+import com.example.mad_project.db.DatabaseClient;
 
 import java.util.List;
 
@@ -39,10 +42,37 @@ public class BagAdapter extends RecyclerView.Adapter<BagAdapter.BagViewHolder> {
 
         holder.productName.setText(bagItem.name);
         holder.productPrice.setText(bagItem.price);
+        holder.amount.setText(String.valueOf(bagItem.amount));
+
 
         if (bagItem.imageUrl != null) {
             Glide.with(context).load(bagItem.imageUrl).into(holder.productImage);
         }
+
+        holder.increase.setOnClickListener(v -> {
+            bagItem.amount++;
+            holder.amount.setText(String.valueOf(bagItem.amount));
+            new Thread(() -> DatabaseClient.getInstance(context).getAppDatabase().bagDao().update(bagItem)).start();
+        });
+
+        holder.decrease.setOnClickListener(v -> {
+            if (bagItem.amount > 1) {
+                bagItem.amount--;
+                holder.amount.setText(String.valueOf(bagItem.amount));
+                new Thread(() -> DatabaseClient.getInstance(context).getAppDatabase().bagDao().update(bagItem)).start();
+            } else {
+                bagItemList.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, bagItemList.size());
+                new Thread(() -> DatabaseClient.getInstance(context).getAppDatabase().bagDao().delete(bagItem)).start();
+            }
+        });
+        holder.removeButton.setOnClickListener(v -> {
+            bagItemList.remove(position);
+            notifyItemRemoved(position);
+            notifyItemRangeChanged(position, bagItemList.size());
+            new Thread(() -> DatabaseClient.getInstance(context).getAppDatabase().bagDao().delete(bagItem)).start();
+        });
     }
 
     @Override
@@ -54,12 +84,22 @@ public class BagAdapter extends RecyclerView.Adapter<BagAdapter.BagViewHolder> {
         ImageView productImage;
         TextView productName;
         TextView productPrice;
+        TextView amount;
+        ImageButton decrease;
+        ImageButton increase;
+        Button removeButton;
+
+
 
         public BagViewHolder(@NonNull View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.imageView);
             productName = itemView.findViewById(R.id.name);
             productPrice = itemView.findViewById(R.id.price);
+            amount = itemView.findViewById(R.id.amount);
+            decrease = itemView.findViewById(R.id.decrease);
+            increase = itemView.findViewById(R.id.increase);
+            removeButton = itemView.findViewById(R.id.Remove);
         }
     }
 }

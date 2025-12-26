@@ -2,69 +2,139 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="260dp"
-    android:orientation="horizontal"
-    >
+    android:layout_height="280dp"
+    android:orientation="vertical"
+    android:gravity="center">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp">
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/imageCard"
-            android:layout_width="200dp"
-            android:layout_height="260dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="1dp">
-
-            <ImageView
-                android:id="@+id/imageView"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/imageCard"
                 android:layout_width="200dp"
-                android:layout_height="260dp"
-                android:scaleType="fitCenter"
-                android:background="#F6F6F6"
-                android:contentDescription="imageCard"
+                android:layout_height="240dp"
+                android:layout_margin="10dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:scaleType="fitCenter"
+                    android:background="#F6F6F6"
+                    android:contentDescription="imageCard"
+                    />
+
+            </androidx.cardview.widget.CardView>
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="20dp"
+
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginStart="5dp"
+                android:text="Street Flow Tee"
+                android:textStyle="bold"
+                android:textColor="@color/black"
                 />
 
-        </androidx.cardview.widget.CardView>
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginStart="5dp"
+                android:text="Oversized clean drip"
+                android:textColor="#6C6C6C"
+                />
+
+            <TextView
+                android:id="@+id/price"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginStart="5dp"
+                android:text="$39 USD"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
 
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="10dp"
-    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginStart="5dp"
-        android:text="Street Flow Tee"
-        android:textColor="@color/black"
-        />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:layout_gravity="center"
+                    app:cardCornerRadius="4dp"
+                    app:cardElevation="4dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/light_gray"
+                        android:orientation="horizontal"
+                        android:gravity="center">
 
-    <TextView
-        android:id="@+id/description"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginStart="5dp"
-        android:text="Oversized clean drip"
-        android:textColor="#6C6C6C"
-        />
+                        <ImageButton
+                            android:id="@+id/decrease"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@color/light_gray"
+                            app:srcCompat="@drawable/decrease_24" />
 
-    <TextView
-        android:id="@+id/price"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_marginStart="5dp"
-        android:text="$39 USD"
-        android:textColor="@color/black"/>
+                        <TextView
+                            android:id="@+id/amount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:minWidth="30dp"
+                            android:textAlignment="center"
+                            android:text="0"
+                            android:textSize="18sp"
+                            android:textColor="@color/black"/>
 
-</LinearLayout>
+                        <ImageButton
+                            android:id="@+id/increase"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:background="@color/light_gray"
+                            app:srcCompat="@drawable/increase_24"/>
+
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/Remove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="#E24A4A"
+                android:text="Remove" />
 
 
+        </LinearLayout>
+
+
+    </LinearLayout>
+    <View
+        android:layout_width="380dp"
+        android:layout_height="2dp"
+        android:background="@color/black"
+        >
+
+    </View>
 </LinearLayout>

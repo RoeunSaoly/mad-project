@@ -1,5 +1,6 @@
 package com.example.mad_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -59,5 +60,13 @@ public class HomeActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        Intent intent = getIntent();
+        if (intent != null && "BagFragment".equals(intent.getStringExtra("navigateTo"))) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new BagFragment())
+                    .commit();
+            bottomNav.setSelectedItemId(R.id.nav_bag);
+        }
     }
 }
