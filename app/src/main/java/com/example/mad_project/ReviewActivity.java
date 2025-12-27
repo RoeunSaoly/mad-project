@@ -37,7 +37,16 @@ public class ReviewActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         Intent intent = getIntent();
-        String shippingMethod = intent.getStringExtra("SHIPPING_METHOD");
+        String shippingMethod = intent.getStringExtra("selectedShippingMethod");
+
+        if (shippingMethod.equals("Express")) {
+            TextView shippingFee = findViewById(R.id.shippingFee);
+            shippingFee.setText("$5.99");
+        } else {
+            TextView shippingFee = findViewById(R.id.shippingFee);
+            shippingFee.setText("Free");
+        }
+
 
         getBagItems();
 
@@ -46,6 +55,13 @@ public class ReviewActivity extends AppCompatActivity {
         back_btn.setOnClickListener(v -> {
             finish();
         });
+
+        Continue.setOnClickListener(v -> {
+            Intent intent1 = new Intent(ReviewActivity.this, PaymentActivity.class);
+            startActivity(intent1);
+        });
+
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -58,7 +74,6 @@ public class ReviewActivity extends AppCompatActivity {
         new Thread(() -> {
             List<BagItem> bagItems = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                     .bagDao().getAll();
-
             runOnUiThread(() -> {
                 adapter = new ReviewBagAdapter(ReviewActivity.this, bagItems);
                 recyclerView.setAdapter(adapter);
