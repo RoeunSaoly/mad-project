@@ -39,11 +39,11 @@
         android:layout_height="600dp" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/checkout"
         android:layout_width="300dp"
-        android:layout_height="80dp"
+        android:layout_height="60dp"
         android:backgroundTint="@color/black"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:text="Checkout" />
 
 </LinearLayout>
