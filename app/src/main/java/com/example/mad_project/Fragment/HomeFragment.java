@@ -5,16 +5,20 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -54,6 +58,8 @@ public class HomeFragment extends Fragment {
     private ViewPager2 carouselViewPager;
     private LinearLayout dotsIndicator;
     private RecyclerView categoryRecyclerView, recommendedProductsRecyclerView, allProductsGridRecyclerView;
+    private EditText searchBar;
+    private CardView carouselCardView;
 
     // Adapters
     private CategoryAdapter categoryAdapter;
@@ -131,6 +137,9 @@ public class HomeFragment extends Fragment {
         dotsIndicator = view.findViewById(R.id.dots_indicator);
         homeProgressBar = view.findViewById(R.id.home_progress_bar);
         home_progress_bar2 = view.findViewById(R.id.home_progress_bar2);
+        searchBar = view.findViewById(R.id.search_bar);
+        carouselCardView = view.findViewById(R.id.carousel_card_view);
+
 
         categoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         recommendedProductsRecyclerView = view.findViewById(R.id.recommended_products_recycler_view);
@@ -171,6 +180,27 @@ public class HomeFragment extends Fragment {
         };
         seeAllCategoriesButton.setOnClickListener(seeAllClickListener);
         seeAllRecommendedButton.setOnClickListener(seeAllClickListener);
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchTerm = s.toString();
+                loadProducts();
+                if (currentSearchTerm.isEmpty()) {
+                    carouselCardView.setVisibility(View.VISIBLE);
+                    recommendedProductsRecyclerView.setVisibility(View.VISIBLE);
+                } else {
+                    carouselCardView.setVisibility(View.GONE);
+                    recommendedProductsRecyclerView.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     // -------------------------------

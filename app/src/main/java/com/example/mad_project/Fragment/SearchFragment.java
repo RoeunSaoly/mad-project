@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mad_project.Product;
 import com.example.mad_project.Adapter.ProductAdapter;
 import com.example.mad_project.R;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,11 +32,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class SearchFragment extends Fragment {
 
@@ -78,6 +81,7 @@ public class SearchFragment extends Fragment {
         searchIcon = view.findViewById(R.id.action_search);
 
         setupRecyclerView();
+        loadCategories();
         setupListeners();
 
         loadFavoritesAndThenProducts();
@@ -117,17 +121,20 @@ public class SearchFragment extends Fragment {
 
     private void setupListeners() {
         categoryChipGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.chip_all) {
+            Chip chip = group.findViewById(checkedId);
+            if (chip != null) {
+                String category = chip.getText().toString();
+                if (category.equals("All")) {
+                    selectedCategory = null;
+                } else {
+                    selectedCategory = category;
+                }
+            } else {
                 selectedCategory = null;
-            } else if (checkedId == R.id.chip_t_shirts) {
-                selectedCategory = "T-Shirts";
-            } else if (checkedId == R.id.chip_hoodies) {
-                selectedCategory = "Hoodies";
-            } else if (checkedId == R.id.chip_bottoms) {
-                selectedCategory = "Bottoms";
             }
             resetAndLoadProducts();
         });
+
 
         searchIcon.setOnClickListener(v -> toggleSearchBar());
 
@@ -148,6 +155,48 @@ public class SearchFragment extends Fragment {
             }
         });
     }
+
+    private void loadCategories() {
+        db.collection("products").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Set<String> categories = new TreeSet<>();
+                QuerySnapshot snapshot = task.getResult();
+                if (snapshot != null) {
+                    for (DocumentSnapshot document : snapshot.getDocuments()) {
+                        String category = document.getString("category");
+                        if (category != null && !category.isEmpty()) {
+                            categories.add(category);
+                        }
+                    }
+                }
+                updateCategoryChips(categories);
+            } else {
+                Log.w(TAG, "Error getting documents: ", task.getException());
+            }
+        });
+    }
+
+    private void updateCategoryChips(Set<String> categories) {
+        categoryChipGroup.removeAllViews();
+
+        Chip allChip = createChip("All");
+        allChip.setChecked(true);
+        categoryChipGroup.addView(allChip);
+
+        for (String category : categories) {
+            Chip chip = createChip(category);
+            categoryChipGroup.addView(chip);
+        }
+    }
+
+    private Chip createChip(String category) {
+        Chip chip = new Chip(getContext());
+        chip.setText(category);
+        chip.setCheckable(true);
+        chip.setClickable(true);
+        return chip;
+    }
+
 
     private void toggleSearchBar() {
         if (searchBarEditText.getVisibility() == View.GONE) {
@@ -210,22 +259,24 @@ public class SearchFragment extends Fragment {
 
         setInProgress(true);
 
-        Query query = db.collection("products").orderBy("name").limit(PAGE_SIZE);
+        Query query = db.collection("products");
 
         if (selectedCategory != null) {
             query = query.whereEqualTo("category", selectedCategory);
         }
 
         if (currentSearchTerm != null && !currentSearchTerm.isEmpty()) {
-            query = query.whereGreaterThanOrEqualTo("name", currentSearchTerm)
-                         .whereLessThanOrEqualTo("name", currentSearchTerm + "\uf8ff");
+            query = query.orderBy("name").whereGreaterThanOrEqualTo("name", currentSearchTerm)
+                    .whereLessThanOrEqualTo("name", currentSearchTerm + "\uf8ff");
+        } else if (selectedCategory == null) {
+            query = query.orderBy("name");
         }
 
         if (lastVisible != null) {
             query = query.startAfter(lastVisible);
         }
 
-        query.get().addOnCompleteListener(task -> {
+        query.limit(PAGE_SIZE).get().addOnCompleteListener(task -> {
             setInProgress(false);
             if (task.isSuccessful()) {
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();

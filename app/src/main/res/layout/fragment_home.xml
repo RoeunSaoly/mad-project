@@ -68,6 +68,7 @@
 
         <!-- Carousel ViewPager -->
         <androidx.cardview.widget.CardView
+            android:id="@+id/carousel_card_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
