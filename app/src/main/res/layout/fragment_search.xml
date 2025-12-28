@@ -61,43 +61,6 @@
         android:padding="8dp"
         app:singleSelection="true">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_all"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="All"
-            android:checked="true"
-            android:textColor="@color/chip_text_state"
-            app:chipBackgroundColor="@color/chip_background_state" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_t_shirts"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="T-Shirts"
-            android:textColor="@color/chip_text_state"
-            app:chipBackgroundColor="@color/chip_background_state" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_hoodies"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hoodies"
-            android:textColor="@color/chip_text_state"
-            app:chipBackgroundColor="@color/chip_background_state" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_bottoms"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Bottoms"
-            android:textColor="@color/chip_text_state"
-            app:chipBackgroundColor="@color/chip_background_state" />
-
     </com.google.android.material.chip.ChipGroup>
 
 
