@@ -6,112 +6,118 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.TextView; // Import TextView
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.example.mad_project.Adapter.ProductAdapter;
 import com.example.mad_project.Product;
 import com.example.mad_project.R;
+import com.example.mad_project.db.AppDatabase;
+import com.example.mad_project.db.FavoriteDao;
+import com.example.mad_project.db.FavoriteItem;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class HeartFragment extends Fragment {
     private static final String TAG = "HeartFragment";
 
     private RecyclerView productsRecyclerView;
     private ProgressBar progressBar;
-    private TextView emptyFavoritesMessage; // TextView for the "empty" message
+    private TextView emptyFavoritesMessage;
     private ProductAdapter productAdapter;
     private final List<Product> productList = new ArrayList<>();
 
     private FirebaseFirestore db;
-    private FirebaseUser currentUser;
+    private AppDatabase appDb;
+    private FavoriteDao favoriteDao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_heart, container, false);
 
-        // Initialize views
         progressBar = view.findViewById(R.id.progressBar);
         productsRecyclerView = view.findViewById(R.id.products_recycler_view);
-        emptyFavoritesMessage = view.findViewById(R.id.empty_favorites_message); // Make sure you add this TextView to your XML layout
+        emptyFavoritesMessage = view.findViewById(R.id.empty_favorites_message);
         db = FirebaseFirestore.getInstance();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        // Initialize Room database
+        appDb = Room.databaseBuilder(getContext().getApplicationContext(), AppDatabase.class, "mad-project-db")
+                .fallbackToDestructiveMigration()
+                .build();
+        favoriteDao = appDb.favoriteDao();
 
         setupRecyclerView();
-        loadFavoriteProductIds(); // Start the loading process
-
+        
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadFavoritesFromDb(); // Load favorites when fragment is resumed
+    }
+
     private void setupRecyclerView() {
-        // Use your existing ProductAdapter
         productAdapter = new ProductAdapter(getContext(), productList);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
         productsRecyclerView.setLayoutManager(layoutManager);
         productsRecyclerView.setAdapter(productAdapter);
     }
 
-    private void loadFavoriteProductIds() {
-        if (currentUser == null) {
-            Log.w(TAG, "No user logged in. Cannot load favorites.");
-            setInProgress(false);
-            showEmptyMessage(true); // Show the empty message if no user
-            return;
-        }
-
+    private void loadFavoritesFromDb() {
         setInProgress(true);
-        showEmptyMessage(false); // Hide message while loading
+        showEmptyMessage(false);
 
-        db.collection("users").document(currentUser.getUid()).collection("favorites").get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        Set<String> favoriteProductIds = new HashSet<>();
-                        for (DocumentSnapshot doc : task.getResult()) {
-                            favoriteProductIds.add(doc.getId());
-                        }
-
-                        if (!favoriteProductIds.isEmpty()) {
-                            loadFavoriteProducts(new ArrayList<>(favoriteProductIds));
-                        } else {
-                            setInProgress(false);
-                            showEmptyMessage(true);
-                        }
-                    } else {
-                        Log.w(TAG, "Error getting favorite IDs.", task.getException());
+        executor.execute(() -> {
+            List<FavoriteItem> favoriteItems = favoriteDao.getAll();
+            if (favoriteItems != null && !favoriteItems.isEmpty()) {
+                List<String> favoriteProductIds = new ArrayList<>();
+                for (FavoriteItem item : favoriteItems) {
+                    favoriteProductIds.add(item.productId);
+                }
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> loadFavoriteProducts(favoriteProductIds));
+                }
+            } else {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
                         setInProgress(false);
-                    }
-                });
+                        showEmptyMessage(true);
+                        productList.clear();
+                        productAdapter.notifyDataSetChanged();
+                    });
+                }
+            }
+        });
     }
 
     private void loadFavoriteProducts(List<String> productIds) {
         if (productIds == null || productIds.isEmpty()) {
             setInProgress(false);
+            showEmptyMessage(true);
             return;
         }
 
         List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
         for (String id : productIds) {
-            // For each ID, create a task to fetch the corresponding document from the "products" collection.
             tasks.add(db.collection("products").document(id).get());
         }
 
-        // Use Tasks.whenAllSuccess() to wait for all product fetches to complete.
         Tasks.whenAllSuccess(tasks).addOnCompleteListener(task -> {
             productList.clear();
             if (task.isSuccessful() && task.getResult() != null) {
@@ -121,8 +127,7 @@ public class HeartFragment extends Fragment {
                         Product product = snapshot.toObject(Product.class);
                         if (product != null) {
                             product.setId(snapshot.getId());
-
-                            product.setFavorited(true);
+                            product.setFavorited(true); // All items in this fragment are favorites
                             productList.add(product);
                         }
                     }
@@ -131,10 +136,9 @@ public class HeartFragment extends Fragment {
                 Log.w(TAG, "Error fetching one or more favorite products.", task.getException());
             }
 
-            // Update the UI
             setInProgress(false);
             productAdapter.notifyDataSetChanged();
-            showEmptyMessage(productList.isEmpty()); // Show message only if the final list is empty
+            showEmptyMessage(productList.isEmpty());
         });
     }
 
@@ -144,7 +148,6 @@ public class HeartFragment extends Fragment {
         }
     }
 
-    // Helper method to show or hide the empty message and the RecyclerView
     private void showEmptyMessage(boolean show) {
         if (emptyFavoritesMessage != null && productsRecyclerView != null) {
             emptyFavoritesMessage.setVisibility(show ? View.VISIBLE : View.GONE);

@@ -12,17 +12,26 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
+import com.example.mad_project.Adapter.BagAdapter;
 import com.example.mad_project.Adapter.ReviewBagAdapter;
+import com.example.mad_project.db.AppDatabase;
+import com.example.mad_project.db.BagDao;
 import com.example.mad_project.db.BagItem;
 import com.example.mad_project.db.DatabaseClient;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ReviewActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ReviewBagAdapter adapter;
+    private AppDatabase appDb;
+    private BagDao bagDao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +44,11 @@ public class ReviewActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.bag_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        appDb = Room.databaseBuilder(this.getApplicationContext(), AppDatabase.class, "mad-project-db")
+                .fallbackToDestructiveMigration()
+                .build();
+        bagDao = appDb.bagDao();
 
         Intent intent = getIntent();
         String shippingMethod = intent.getStringExtra("selectedShippingMethod");
@@ -71,13 +85,14 @@ public class ReviewActivity extends AppCompatActivity {
     }
 
     private void getBagItems() {
-        new Thread(() -> {
-            List<BagItem> bagItems = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                    .bagDao().getAll();
-            runOnUiThread(() -> {
-                adapter = new ReviewBagAdapter(ReviewActivity.this, bagItems);
-                recyclerView.setAdapter(adapter);
-            });
-        }).start();
+        executor.execute(() -> {
+            List<BagItem> bagItems = bagDao.getAll();
+            if (this != null) {
+                this.runOnUiThread(() -> {
+                    adapter = new ReviewBagAdapter(this, bagItems);
+                    recyclerView.setAdapter(adapter);
+                });
+            }
+        });
     }
 }
