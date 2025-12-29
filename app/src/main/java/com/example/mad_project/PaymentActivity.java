@@ -2,20 +2,31 @@ package com.example.mad_project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.room.Room;
 
+import com.example.mad_project.db.AppDatabase;
+import com.example.mad_project.db.BagDao;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class PaymentActivity extends AppCompatActivity {
+
+    private AppDatabase appDb;
+    private BagDao bagDao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +38,25 @@ public class PaymentActivity extends AppCompatActivity {
         TextView totalTextView = findViewById(R.id.total);
         TextView nameTextView = findViewById(R.id.name);
         TextView emailTextView = findViewById(R.id.email);
+        Button payButton = findViewById(R.id.pay);
+
+        appDb = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "mad-project-db")
+                .fallbackToDestructiveMigration()
+                .build();
+        bagDao = appDb.bagDao();
+
+        payButton.setOnClickListener(v -> {
+            executor.execute(() -> {
+                bagDao.deleteAll();
+                runOnUiThread(() -> {
+                    Toast.makeText(PaymentActivity.this, "Payment Successful!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, HomeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                });
+            });
+        });
 
         qrcode.setImageResource(R.drawable.qrcode);
 
@@ -44,12 +74,14 @@ public class PaymentActivity extends AppCompatActivity {
             return insets;
         });
     }
+
     public static String getUsernameFromEmail(String email) {
         if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email address");
+            return "User"; // Return a default username
         }
         return email.substring(0, email.indexOf('@'));
     }
+
     private void updateUserDetails(TextView nameTextView, TextView emailTextView) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {

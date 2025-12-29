@@ -25,4 +25,7 @@ public interface BagDao {
 
     @Delete
     void delete(BagItem bagItem);
+
+    @Query("DELETE FROM bag_items")
+    void deleteAll();
 }
