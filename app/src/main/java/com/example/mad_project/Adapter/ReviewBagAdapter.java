@@ -20,6 +20,7 @@ import com.example.mad_project.db.BagDao;
 import com.example.mad_project.db.BagItem;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,7 +53,7 @@ public class ReviewBagAdapter extends RecyclerView.Adapter<ReviewBagAdapter.BagV
         BagItem bagItem = bagItemList.get(position);
 
         holder.productName.setText(bagItem.name);
-        holder.productPrice.setText(bagItem.price);
+        holder.productPrice.setText(String.format(Locale.US, "$%.2f", bagItem.price / 100.0));
         holder.amount.setText(String.valueOf(bagItem.amount));
 
         if (bagItem.imageUrl != null) {

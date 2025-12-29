@@ -46,7 +46,7 @@ public class ExplorePage extends AppCompatActivity {
         Button addToBagButton = findViewById(R.id.button);
 
         appDb = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "mad-project-db")
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration() // You should implement a proper migration strategy
                 .build();
         bagDao = appDb.bagDao();
 
@@ -81,17 +81,35 @@ public class ExplorePage extends AppCompatActivity {
 
         addToBagButton.setOnClickListener(v -> {
             String productName = product.getStringExtra("Name");
-            String productPrice = product.getStringExtra("Price");
+            String productPriceString = product.getStringExtra("Price");
             String productImageUrl = product.getStringExtra("img");
 
-            BagItem bagItem = new BagItem();
-            bagItem.name = productName;
-            bagItem.price = productPrice;
-            bagItem.imageUrl = productImageUrl;
-            bagItem.amount = 1;
-
             executor.execute(() -> {
-                bagDao.insert(bagItem);
+                BagItem existingItem = bagDao.getBagItemByName(productName);
+
+                if (existingItem != null) {
+                    existingItem.amount++;
+                    bagDao.update(existingItem);
+                } else {
+                    int priceInCents = 0;
+                    if (productPriceString != null && !productPriceString.isEmpty()) {
+                        String numericPriceString = productPriceString.replaceAll("[^\\d.]", "");
+                        try {
+                            double priceDouble = Double.parseDouble(numericPriceString);
+                            priceInCents = (int) (priceDouble * 100);
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    BagItem newBagItem = new BagItem();
+                    newBagItem.name = productName;
+                    newBagItem.price = priceInCents;
+                    newBagItem.imageUrl = productImageUrl;
+                    newBagItem.amount = 1;
+                    bagDao.insert(newBagItem);
+                }
+
                 runOnUiThread(() -> {
                     Toast.makeText(ExplorePage.this, "Added to bag", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(ExplorePage.this, HomeActivity.class);
