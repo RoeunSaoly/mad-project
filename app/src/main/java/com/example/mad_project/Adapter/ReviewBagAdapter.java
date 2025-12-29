@@ -1,5 +1,6 @@
 package com.example.mad_project.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +32,16 @@ public class ReviewBagAdapter extends RecyclerView.Adapter<ReviewBagAdapter.BagV
     private final AppDatabase appDb;
     private final BagDao bagDao;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final OnBagChangedListener onBagChangedListener;
 
-    public ReviewBagAdapter(Context context, List<BagItem> bagItemList) {
+    public interface OnBagChangedListener {
+        void onBagChanged();
+    }
+
+    public ReviewBagAdapter(Context context, List<BagItem> bagItemList, OnBagChangedListener listener) {
         this.context = context;
         this.bagItemList = bagItemList;
+        this.onBagChangedListener = listener;
         this.appDb = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "mad-project-db")
                 .fallbackToDestructiveMigration()
                 .build();
@@ -63,7 +70,12 @@ public class ReviewBagAdapter extends RecyclerView.Adapter<ReviewBagAdapter.BagV
         holder.increase.setOnClickListener(v -> {
             bagItem.amount++;
             holder.amount.setText(String.valueOf(bagItem.amount));
-            executor.execute(() -> bagDao.update(bagItem));
+            executor.execute(() -> {
+                bagDao.update(bagItem);
+                if (onBagChangedListener != null) {
+                    ((Activity) context).runOnUiThread(onBagChangedListener::onBagChanged);
+                }
+            });
         });
 
         holder.decrease.setOnClickListener(v -> {
@@ -74,12 +86,22 @@ public class ReviewBagAdapter extends RecyclerView.Adapter<ReviewBagAdapter.BagV
             if (currentBagItem.amount > 1) {
                 currentBagItem.amount--;
                 holder.amount.setText(String.valueOf(currentBagItem.amount));
-                executor.execute(() -> bagDao.update(currentBagItem));
+                executor.execute(() -> {
+                    bagDao.update(currentBagItem);
+                    if (onBagChangedListener != null) {
+                        ((Activity) context).runOnUiThread(onBagChangedListener::onBagChanged);
+                    }
+                });
             } else {
                 bagItemList.remove(currentPosition);
                 notifyItemRemoved(currentPosition);
                 notifyItemRangeChanged(currentPosition, bagItemList.size());
-                executor.execute(() -> bagDao.delete(currentBagItem));
+                executor.execute(() -> {
+                    bagDao.delete(currentBagItem);
+                    if (onBagChangedListener != null) {
+                        ((Activity) context).runOnUiThread(onBagChangedListener::onBagChanged);
+                    }
+                });
             }
         });
 
@@ -91,7 +113,12 @@ public class ReviewBagAdapter extends RecyclerView.Adapter<ReviewBagAdapter.BagV
             bagItemList.remove(currentPosition);
             notifyItemRemoved(currentPosition);
             notifyItemRangeChanged(currentPosition, bagItemList.size());
-            executor.execute(() -> bagDao.delete(itemToRemove));
+            executor.execute(() -> {
+                bagDao.delete(itemToRemove);
+                if (onBagChangedListener != null) {
+                    ((Activity) context).runOnUiThread(onBagChangedListener::onBagChanged);
+                }
+            });
         });
     }
 
