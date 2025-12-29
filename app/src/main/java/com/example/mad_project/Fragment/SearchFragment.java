@@ -205,7 +205,7 @@ public class SearchFragment extends Fragment {
             chip.setChipBackgroundColor(backgroundStateList);
             chip.setTextColor(textStateList);
         }
-
+        chip.setCheckedIconVisible(false);
         chip.setCheckable(true);
         chip.setClickable(true);
 
