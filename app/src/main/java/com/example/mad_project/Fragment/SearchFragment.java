@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -88,7 +89,25 @@ public class SearchFragment extends Fragment {
 
         loadFavoritesAndThenProducts();
 
+        // Hide search bar when touching outside (on the main view)
+        view.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (searchBarEditText.getVisibility() == View.VISIBLE) {
+                    hideSearchBar();
+                }
+            }
+            return false;
+        });
+
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (getArguments() != null && getArguments().getBoolean("expand_search", false)) {
+            showSearchBar();
+        }
     }
 
     @Override
@@ -118,6 +137,30 @@ public class SearchFragment extends Fragment {
                     }
                 }
             }
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    if (searchBarEditText.getVisibility() == View.VISIBLE && searchBarEditText.getText().toString().isEmpty()) {
+                        hideSearchBar();
+                    } else if (searchBarEditText.getVisibility() == View.VISIBLE) {
+                        hideKeyboard();
+                    }
+                }
+            }
+        });
+
+        // Hide search bar when touching the products list
+        productsRecyclerView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (searchBarEditText.getVisibility() == View.VISIBLE && searchBarEditText.getText().toString().isEmpty()) {
+                    hideSearchBar();
+                } else if (searchBarEditText.getVisibility() == View.VISIBLE) {
+                    hideKeyboard();
+                }
+            }
+            return false;
         });
     }
 
@@ -134,6 +177,14 @@ public class SearchFragment extends Fragment {
             } else {
                 selectedCategory = null;
             }
+
+            // Hide search bar if it's empty when changing category
+            if (searchBarEditText.getVisibility() == View.VISIBLE && searchBarEditText.getText().toString().isEmpty()) {
+                hideSearchBar();
+            } else {
+                hideKeyboard();
+            }
+
             resetAndLoadProducts();
         });
 
@@ -215,16 +266,24 @@ public class SearchFragment extends Fragment {
 
     private void toggleSearchBar() {
         if (searchBarEditText.getVisibility() == View.GONE) {
-            searchBarEditText.setVisibility(View.VISIBLE);
-            searchBarEditText.requestFocus();
-            showKeyboard();
+            showSearchBar();
         } else {
-            searchBarEditText.setVisibility(View.GONE);
-            searchBarEditText.setText("");
-            currentSearchTerm = null;
-            hideKeyboard();
-            resetAndLoadProducts();
+            hideSearchBar();
         }
+    }
+
+    private void showSearchBar() {
+        searchBarEditText.setVisibility(View.VISIBLE);
+        searchBarEditText.requestFocus();
+        showKeyboard();
+    }
+
+    private void hideSearchBar() {
+        searchBarEditText.setVisibility(View.GONE);
+        searchBarEditText.setText("");
+        currentSearchTerm = null;
+        hideKeyboard();
+        resetAndLoadProducts();
     }
 
     private void showKeyboard() {
@@ -237,9 +296,11 @@ public class SearchFragment extends Fragment {
 
     private void hideKeyboard() {
         if (getContext() == null) return;
+        View view = getActivity() != null ? getActivity().getCurrentFocus() : null;
+        if (view == null) view = searchBarEditText;
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
-            imm.hideSoftInputFromWindow(searchBarEditText.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 

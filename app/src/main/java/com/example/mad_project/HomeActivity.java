@@ -18,6 +18,12 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class HomeActivity extends AppCompatActivity {
 
+    private boolean expandSearchOnLoad = false;
+
+    public void setExpandSearchOnLoad(boolean expand) {
+        this.expandSearchOnLoad = expand;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +51,14 @@ public class HomeActivity extends AppCompatActivity {
             if (itemId == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
             } else if (itemId == R.id.nav_search) {
-                selectedFragment = new SearchFragment();
+                SearchFragment searchFragment = new SearchFragment();
+                if (expandSearchOnLoad) {
+                    Bundle args = new Bundle();
+                    args.putBoolean("expand_search", true);
+                    searchFragment.setArguments(args);
+                    expandSearchOnLoad = false; // Reset flag
+                }
+                selectedFragment = searchFragment;
             } else if (itemId == R.id.nav_heart) {
                 selectedFragment = new HeartFragment();
             } else if (itemId == R.id.nav_bag) {
