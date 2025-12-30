@@ -1,24 +1,22 @@
 package com.example.mad_project.Fragment;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.compose.ui.platform.ComposeView;
+import androidx.compose.ui.platform.ViewCompositionStrategy;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -27,13 +25,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.mad_project.Adapter.CarouselAdapter;
+import com.example.mad_project.Adapter.CategoryAdapter;
+import com.example.mad_project.Adapter.ProductAdapter;
 import com.example.mad_project.Adapter.RecommendedItemAdapter;
 import com.example.mad_project.CarouselItem;
 import com.example.mad_project.Category;
-import com.example.mad_project.Adapter.CategoryAdapter;
 import com.example.mad_project.Product;
-import com.example.mad_project.Adapter.ProductAdapter;
 import com.example.mad_project.R;
+import com.example.mad_project.SearchHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,7 +42,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,12 +56,12 @@ public class HomeFragment extends Fragment {
     private ViewPager2 carouselViewPager;
     private LinearLayout dotsIndicator;
     private RecyclerView categoryRecyclerView, recommendedProductsRecyclerView, allProductsGridRecyclerView;
-    private EditText searchBar;
+    private ComposeView composeSearchBar; // Changed from EditText
     private CardView carouselCardView;
 
     // Adapters
     private CategoryAdapter categoryAdapter;
-    private ProductAdapter  allProductsGridAdapter;
+    private ProductAdapter allProductsGridAdapter;
     private RecommendedItemAdapter recommendedProductsAdapter;
     private CarouselAdapter carouselAdapter;
 
@@ -72,7 +70,7 @@ public class HomeFragment extends Fragment {
     private final List<Product> recommendedProductsList = new ArrayList<>();
     private final List<Product> allProductsGridList = new ArrayList<>();
     private final List<CarouselItem> carouselItems = new ArrayList<>();
-    private Set<String> favoriteProductIds = new HashSet<>();
+    private final Set<String> favoriteProductIds = new HashSet<>();
 
     // Firebase
     private FirebaseAuth mAuth;
@@ -86,6 +84,7 @@ public class HomeFragment extends Fragment {
     private String currentSearchTerm = null;
     private ProgressBar homeProgressBar;
     private ProgressBar home_progress_bar2;
+
     // Carousel
     private final Handler carouselHandler = new Handler(Looper.getMainLooper());
     private Runnable carouselRunnable;
@@ -101,9 +100,40 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initFirebase();
         initViews(view);
+        setupComposeSearchBar(); // New bridge method
         setupRecyclerViews();
         setupCarousel();
         setupListeners();
+    }
+
+    private void setupComposeSearchBar() {
+        if (composeSearchBar != null) {
+            // Ensure Compose stays alive correctly within the Fragment Lifecycle
+            composeSearchBar.setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE
+            );
+
+            // Call the Kotlin bridge function
+            SearchHelper.initComposeSearchBar(composeSearchBar, query -> {
+                handleSearch(query);
+                return null; // Required because of Kotlin's Unit return type in Java
+            });
+        }
+    }
+
+    private void handleSearch(String query) {
+        currentSearchTerm = query;
+        lastVisible = null; // Reset pagination for new search
+        isLastPage = false;
+        loadProducts();
+
+        if (query == null || query.isEmpty()) {
+            carouselCardView.setVisibility(View.VISIBLE);
+            recommendedProductsRecyclerView.setVisibility(View.VISIBLE);
+        } else {
+            carouselCardView.setVisibility(View.GONE);
+            recommendedProductsRecyclerView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -119,9 +149,6 @@ public class HomeFragment extends Fragment {
         stopCarouselAutoScroll();
     }
 
-    // -------------------------------
-    // INITIALIZATION
-    // -------------------------------
     private void initFirebase() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -137,9 +164,10 @@ public class HomeFragment extends Fragment {
         dotsIndicator = view.findViewById(R.id.dots_indicator);
         homeProgressBar = view.findViewById(R.id.home_progress_bar);
         home_progress_bar2 = view.findViewById(R.id.home_progress_bar2);
-        searchBar = view.findViewById(R.id.search_bar);
-        carouselCardView = view.findViewById(R.id.carousel_card_view);
 
+        // Find ComposeView instead of EditText
+        composeSearchBar = view.findViewById(R.id.compose_search_bar);
+        carouselCardView = view.findViewById(R.id.carousel_card_view);
 
         categoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         recommendedProductsRecyclerView = view.findViewById(R.id.recommended_products_recycler_view);
@@ -165,7 +193,7 @@ public class HomeFragment extends Fragment {
         categoryList.add(new Category("Shoes", R.drawable.ic_category_shoes));
         categoryList.add(new Category("Women", R.drawable.ic_category_women));
         categoryList.add(new Category("Men", R.drawable.ic_category_men));
-        categoryList.add(new Category("Beauty", R.drawable.ic_category_accessories)); // Placeholder
+        categoryList.add(new Category("Beauty", R.drawable.ic_category_accessories));
 
         categoryAdapter = new CategoryAdapter(getContext(), categoryList);
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -181,36 +209,15 @@ public class HomeFragment extends Fragment {
         seeAllCategoriesButton.setOnClickListener(seeAllClickListener);
         seeAllRecommendedButton.setOnClickListener(seeAllClickListener);
 
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchTerm = s.toString();
-                loadProducts();
-                if (currentSearchTerm.isEmpty()) {
-                    carouselCardView.setVisibility(View.VISIBLE);
-                    recommendedProductsRecyclerView.setVisibility(View.VISIBLE);
-                } else {
-                    carouselCardView.setVisibility(View.GONE);
-                    recommendedProductsRecyclerView.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        // Removed old searchBar TextWatcher logic
     }
 
-    // -------------------------------
-    // CAROUSEL LOGIC
-    // -------------------------------
+    // Carousel Logic remains same...
     private void setupCarousel() {
         if (getContext() == null) return;
         carouselItems.clear();
-        carouselItems.add(new CarouselItem("Your Goals. Your Gear.", "Accelerate your fitness journey with these essentials.", R.drawable.carousel1));
-        carouselItems.add(new CarouselItem("New Collection Drop", "Discover the latest trends.", R.drawable.carousel2));
+        carouselItems.add(new CarouselItem("Your Goals. Your Gear.", "Accelerate your fitness journey.", R.drawable.carousel1));
+        carouselItems.add(new CarouselItem("New Collection Drop", "Discover latest trends.", R.drawable.carousel2));
         carouselItems.add(new CarouselItem("Summer Sale!", "Up to 50% off.", R.drawable.carousel3));
 
         carouselAdapter = new CarouselAdapter(carouselItems);
@@ -230,8 +237,11 @@ public class HomeFragment extends Fragment {
     private void startCarouselAutoScroll() {
         carouselHandler.removeCallbacks(carouselRunnable);
         carouselRunnable = () -> {
-            int next = (carouselViewPager.getCurrentItem() + 1) % carouselAdapter.getItemCount();
-            carouselViewPager.setCurrentItem(next, true);
+            if (carouselAdapter != null && carouselAdapter.getItemCount() > 0) {
+                int next = (carouselViewPager.getCurrentItem() + 1) % carouselAdapter.getItemCount();
+                carouselViewPager.setCurrentItem(next, true);
+            }
+            carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
         };
         carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
     }
@@ -260,9 +270,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    // -------------------------------
-    // DATA LOADING LOGIC
-    // -------------------------------
     private void loadInitialData() {
         loadUserData();
         loadFavoritesAndThenProducts();
@@ -312,7 +319,6 @@ public class HomeFragment extends Fragment {
             if (task.isSuccessful()) {
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
 
-                // Clear the lists only when it's a fresh load (not pagination)
                 if (lastVisible == null) {
                     recommendedProductsList.clear();
                     allProductsGridList.clear();
@@ -335,7 +341,6 @@ public class HomeFragment extends Fragment {
                     }
                 }
 
-                // Notify both adapters that their data has changed.
                 recommendedProductsAdapter.notifyDataSetChanged();
                 allProductsGridAdapter.notifyDataSetChanged();
 
@@ -357,6 +362,7 @@ public class HomeFragment extends Fragment {
             Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
         }
     }
+
     private void loadUserData() {
         if (currentUser == null) return;
         db.collection("users").document(currentUser.getUid()).get()
@@ -370,11 +376,7 @@ public class HomeFragment extends Fragment {
 
     private void setInProgress(boolean inProgress) {
         isLoading = inProgress;
-        if (homeProgressBar != null) {
-            homeProgressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
-        }
-        if (home_progress_bar2 != null) {
-            home_progress_bar2.setVisibility(inProgress ? View.VISIBLE : View.GONE);
-        }
+        if (homeProgressBar != null) homeProgressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        if (home_progress_bar2 != null) home_progress_bar2.setVisibility(inProgress ? View.VISIBLE : View.GONE);
     }
 }
