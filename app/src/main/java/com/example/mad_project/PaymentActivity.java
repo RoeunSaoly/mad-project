@@ -17,6 +17,7 @@ import com.example.mad_project.db.AppDatabase;
 import com.example.mad_project.db.BagDao;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +28,8 @@ public class PaymentActivity extends AppCompatActivity {
     private AppDatabase appDb;
     private BagDao bagDao;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    TextView nameTextView;
+    TextView emailTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +39,8 @@ public class PaymentActivity extends AppCompatActivity {
         TextView back_btn = findViewById(R.id.back_btn);
         ImageView qrcode = findViewById(R.id.qrcode);
         TextView totalTextView = findViewById(R.id.total);
-        TextView nameTextView = findViewById(R.id.name);
-        TextView emailTextView = findViewById(R.id.email);
+        nameTextView = findViewById(R.id.name);
+        emailTextView = findViewById(R.id.email);
         Button payButton = findViewById(R.id.pay);
 
         appDb = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "mad-project-db")
@@ -64,7 +67,7 @@ public class PaymentActivity extends AppCompatActivity {
         int totalAmountInCents = intent.getIntExtra("totalAmount", 0);
         totalTextView.setText(String.format(Locale.US, "$%.2f USD", totalAmountInCents / 100.0));
 
-        updateUserDetails(nameTextView, emailTextView);
+        updateUserDetails();
 
         back_btn.setOnClickListener(v -> finish());
 
@@ -82,15 +85,34 @@ public class PaymentActivity extends AppCompatActivity {
         return email.substring(0, email.indexOf('@'));
     }
 
-    private void updateUserDetails(TextView nameTextView, TextView emailTextView) {
+    private void updateUserDetails() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
-                nameTextView.setText(currentUser.getDisplayName());
-            } else {
-                nameTextView.setText(getUsernameFromEmail(currentUser.getEmail())); // Placeholder
-            }
             emailTextView.setText(currentUser.getEmail());
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(currentUser.getUid()).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String name = documentSnapshot.getString("name");
+                            if (name != null && !name.isEmpty()) {
+                                nameTextView.setText(name);
+                            } else {
+                                setFallbackName(currentUser);
+                            }
+                        } else {
+                            setFallbackName(currentUser);
+                        }
+                    })
+                    .addOnFailureListener(e -> setFallbackName(currentUser));
+        }
+    }
+
+    private void setFallbackName(FirebaseUser currentUser) {
+        if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+            nameTextView.setText(currentUser.getDisplayName());
+        } else {
+            nameTextView.setText(getUsernameFromEmail(currentUser.getEmail()));
         }
     }
 }

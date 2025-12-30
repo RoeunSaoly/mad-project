@@ -19,6 +19,7 @@ import com.example.mad_project.db.BagDao;
 import com.example.mad_project.db.BagItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.Locale;
@@ -90,15 +91,33 @@ public class ReviewActivity extends AppCompatActivity implements ReviewBagAdapte
     private void updateUserDetails() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
-                nameTextView.setText(currentUser.getDisplayName());
-            } else {
-                nameTextView.setText(getUsernameFromEmail(currentUser.getEmail())); // Placeholder
-            }
             emailTextView.setText(currentUser.getEmail());
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(currentUser.getUid()).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String name = documentSnapshot.getString("name");
+                            if (name != null && !name.isEmpty()) {
+                                nameTextView.setText(name);
+                            } else {
+                                setFallbackName(currentUser);
+                            }
+                        } else {
+                            setFallbackName(currentUser);
+                        }
+                    })
+                    .addOnFailureListener(e -> setFallbackName(currentUser));
         }
     }
 
+    private void setFallbackName(FirebaseUser currentUser) {
+        if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+            nameTextView.setText(currentUser.getDisplayName());
+        } else {
+            nameTextView.setText(getUsernameFromEmail(currentUser.getEmail()));
+        }
+    }
     private void setupRecyclerViewAndInitialTotals() {
         executor.execute(() -> {
             bagItems = bagDao.getAll();

@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class CheckoutActivity extends AppCompatActivity {
 
@@ -64,22 +65,42 @@ public class CheckoutActivity extends AppCompatActivity {
             return insets;
         });
     }
+
     public static String getUsernameFromEmail(String email) {
         if (email == null || !email.contains("@")) {
             throw new IllegalArgumentException("Invalid email address");
         }
         return email.substring(0, email.indexOf('@'));
     }
+
     private void updateUserDetails() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             emailTextView.setText(currentUser.getEmail());
-            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
-                nameTextView.setText(currentUser.getDisplayName());
-            } else {
-                nameTextView.setText(getUsernameFromEmail(currentUser.getEmail())); // Placeholder
-            }
 
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(currentUser.getUid()).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String name = documentSnapshot.getString("name");
+                            if (name != null && !name.isEmpty()) {
+                                nameTextView.setText(name);
+                            } else {
+                                setFallbackName(currentUser);
+                            }
+                        } else {
+                            setFallbackName(currentUser);
+                        }
+                    })
+                    .addOnFailureListener(e -> setFallbackName(currentUser));
+        }
+    }
+
+    private void setFallbackName(FirebaseUser currentUser) {
+        if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+            nameTextView.setText(currentUser.getDisplayName());
+        } else {
+            nameTextView.setText(getUsernameFromEmail(currentUser.getEmail()));
         }
     }
 

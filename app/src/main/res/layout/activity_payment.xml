@@ -119,22 +119,14 @@
         android:layout_height="300dp"
         android:layout_marginTop="20dp" />
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/pay"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
         android:layout_marginTop="30dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp">
-
-        <Button
-            android:id="@+id/pay"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:backgroundTint="@android:color/transparent"
-            android:text="Pay"
-            android:textColor="@color/black" />
-
-    </androidx.cardview.widget.CardView>
+        android:backgroundTint="@color/black"
+        android:text="Pay"
+        android:textColor="@color/white" />
 
 
 
