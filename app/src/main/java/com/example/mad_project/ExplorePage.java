@@ -111,8 +111,8 @@ public class ExplorePage extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> {
-                    Toast.makeText(ExplorePage.this, "Added to bag", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(ExplorePage.this, HomeActivity.class);
+                    intent.putExtra("ITEM_ADDED_SUCCESS", true);
                     intent.putExtra("navigateTo", "BagFragment");
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

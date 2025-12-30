@@ -14,6 +14,7 @@ import com.example.mad_project.Fragment.HomeFragment;
 import com.example.mad_project.Fragment.ProfileFragment;
 import com.example.mad_project.Fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -63,7 +64,9 @@ public class HomeActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null && "BagFragment".equals(intent.getStringExtra("navigateTo"))) {
-            getSupportFragmentManager().beginTransaction()
+            if (intent.getBooleanExtra("ITEM_ADDED_SUCCESS", false)) {
+                Snackbar.make(findViewById(R.id.main), "Added to bag", Snackbar.LENGTH_SHORT).show();
+            }            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new BagFragment())
                     .commit();
             bottomNav.setSelectedItemId(R.id.nav_bag);
