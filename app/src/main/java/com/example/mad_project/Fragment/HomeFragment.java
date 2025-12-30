@@ -31,6 +31,7 @@ import com.example.mad_project.Adapter.RecommendedItemAdapter;
 import com.example.mad_project.CarouselItem;
 import com.example.mad_project.Category;
 import com.example.mad_project.Adapter.CategoryAdapter;
+import com.example.mad_project.HomeActivity;
 import com.example.mad_project.Product;
 import com.example.mad_project.Adapter.ProductAdapter;
 import com.example.mad_project.R;
@@ -173,34 +174,15 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupListeners() {
-        View.OnClickListener seeAllClickListener = v -> {
-            if (getActivity() != null) {
+        View.OnClickListener searchClickListener = v -> {
+            if (getActivity() != null && getActivity() instanceof HomeActivity) {
+                ((HomeActivity) getActivity()).setExpandSearchOnLoad(true);
                 ((BottomNavigationView) getActivity().findViewById(R.id.bottom_nav)).setSelectedItemId(R.id.nav_search);
             }
         };
-        seeAllCategoriesButton.setOnClickListener(seeAllClickListener);
-        seeAllRecommendedButton.setOnClickListener(seeAllClickListener);
-
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchTerm = s.toString();
-                loadProducts();
-                if (currentSearchTerm.isEmpty()) {
-                    carouselCardView.setVisibility(View.VISIBLE);
-                    recommendedProductsRecyclerView.setVisibility(View.VISIBLE);
-                } else {
-                    carouselCardView.setVisibility(View.GONE);
-                    recommendedProductsRecyclerView.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+        seeAllCategoriesButton.setOnClickListener(searchClickListener);
+        seeAllRecommendedButton.setOnClickListener(searchClickListener);
+        searchBar.setOnClickListener(searchClickListener);
     }
 
     // -------------------------------
@@ -296,11 +278,6 @@ public class HomeFragment extends Fragment {
 
         if (selectedCategory != null) {
             query = query.whereEqualTo("category", selectedCategory);
-        }
-
-        if (currentSearchTerm != null && !currentSearchTerm.isEmpty()) {
-            query = query.whereGreaterThanOrEqualTo("name", currentSearchTerm)
-                    .whereLessThanOrEqualTo("name", currentSearchTerm + "\uf8ff");
         }
 
         if (lastVisible != null) {

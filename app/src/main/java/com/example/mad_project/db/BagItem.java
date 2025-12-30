@@ -8,7 +8,7 @@ public class BagItem {
     @PrimaryKey(autoGenerate = true)
     public int id;
     public String name;
-    public String price;
+    public int price; // Price in cents
     public String imageUrl;
     public int amount;
 }

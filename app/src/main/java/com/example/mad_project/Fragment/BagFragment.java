@@ -12,19 +12,26 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.example.mad_project.Adapter.BagAdapter;
 import com.example.mad_project.CheckoutActivity;
 import com.example.mad_project.R;
+import com.example.mad_project.db.AppDatabase;
+import com.example.mad_project.db.BagDao;
 import com.example.mad_project.db.BagItem;
-import com.example.mad_project.db.DatabaseClient;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class BagFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private BagAdapter adapter;
+    private AppDatabase appDb;
+    private BagDao bagDao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Nullable
     @Override
@@ -40,24 +47,32 @@ public class BagFragment extends Fragment {
             startActivity(intent);
         });
 
+        appDb = Room.databaseBuilder(getContext().getApplicationContext(), AppDatabase.class, "mad-project-db")
+                .fallbackToDestructiveMigration()
+                .build();
+        bagDao = appDb.bagDao();
 
         recyclerView = view.findViewById(R.id.bag_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        getBagItems();
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getBagItems();
+    }
+
     private void getBagItems() {
-        new Thread(() -> {
-            List<BagItem> bagItems = DatabaseClient.getInstance(getContext()).getAppDatabase()
-                    .bagDao().getAll();
+        executor.execute(() -> {
+            List<BagItem> bagItems = bagDao.getAll();
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
                     adapter = new BagAdapter(getContext(), bagItems);
                     recyclerView.setAdapter(adapter);
                 });
             }
-        }).start();
+        });
     }
 }

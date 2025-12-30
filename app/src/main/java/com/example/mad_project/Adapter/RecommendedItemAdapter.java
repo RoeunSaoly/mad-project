@@ -11,19 +11,23 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.example.mad_project.ExplorePage;
 import com.example.mad_project.Product;
 import com.example.mad_project.R;
+import com.example.mad_project.db.AppDatabase;
+import com.example.mad_project.db.FavoriteDao;
+import com.example.mad_project.db.FavoriteItem;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItemAdapter.ProductViewHolder> {
 
@@ -31,14 +35,17 @@ public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItem
 
     private final Context context;
     private final List<Product> productList;
-    private final FirebaseFirestore db;
-    private final FirebaseUser currentUser;
+    private final AppDatabase appDb;
+    private final FavoriteDao favoriteDao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public RecommendedItemAdapter(Context context, List<Product> productList) {
         this.context = context;
         this.productList = productList;
-        this.db = FirebaseFirestore.getInstance();
-        this.currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        this.appDb = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "mad-project-db")
+                .fallbackToDestructiveMigration()
+                .build();
+        this.favoriteDao = appDb.favoriteDao();
     }
 
     @NonNull
@@ -61,33 +68,25 @@ public class RecommendedItemAdapter extends RecyclerView.Adapter<RecommendedItem
             Glide.with(context).load(imageUrl).into(holder.productImage);
         }
 
-        // Set initial favorite state
-        updateFavoriteIcon(holder.favoriteButton, product.isFavorited());
+        executor.execute(() -> {
+            boolean isFavorited = favoriteDao.getFavoriteById(product.getId()) != null;
+            product.setFavorited(isFavorited);
+            holder.itemView.post(() -> updateFavoriteIcon(holder.favoriteButton, isFavorited));
+        });
 
         holder.favoriteButton.setOnClickListener(v -> {
-            if (currentUser == null) return; // Should not happen
-
-            boolean isCurrentlyFavorited = product.isFavorited();
-            product.setFavorited(!isCurrentlyFavorited);
-            updateFavoriteIcon(holder.favoriteButton, !isCurrentlyFavorited);
-
-            if (!isCurrentlyFavorited) {
-                // Add to favorites
-                Map<String, Object> favoriteData = new HashMap<>();
-                favoriteData.put("productId", product.getId());
-                db.collection("users").document(currentUser.getUid())
-                        .collection("favorites").document(product.getId())
-                        .set(favoriteData)
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Added to favorites: " + product.getId()))
-                        .addOnFailureListener(e -> Log.w(TAG, "Error adding to favorites", e));
-            } else {
-                // Remove from favorites
-                db.collection("users").document(currentUser.getUid())
-                        .collection("favorites").document(product.getId())
-                        .delete()
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Removed from favorites: " + product.getId()))
-                        .addOnFailureListener(e -> Log.w(TAG, "Error removing from favorites", e));
-            }
+            executor.execute(() -> {
+                boolean isCurrentlyFavorited = product.isFavorited();
+                if (isCurrentlyFavorited) {
+                    favoriteDao.delete(new FavoriteItem(product.getId()));
+                    Log.d(TAG, "Removed from favorites: " + product.getId());
+                } else {
+                    favoriteDao.insert(new FavoriteItem(product.getId()));
+                    Log.d(TAG, "Added to favorites: " + product.getId());
+                }
+                product.setFavorited(!isCurrentlyFavorited);
+                holder.itemView.post(() -> updateFavoriteIcon(holder.favoriteButton, !isCurrentlyFavorited));
+            });
         });
 
 

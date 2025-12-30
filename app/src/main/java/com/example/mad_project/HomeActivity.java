@@ -14,8 +14,15 @@ import com.example.mad_project.Fragment.HomeFragment;
 import com.example.mad_project.Fragment.ProfileFragment;
 import com.example.mad_project.Fragment.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 public class HomeActivity extends AppCompatActivity {
+
+    private boolean expandSearchOnLoad = false;
+
+    public void setExpandSearchOnLoad(boolean expand) {
+        this.expandSearchOnLoad = expand;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +51,14 @@ public class HomeActivity extends AppCompatActivity {
             if (itemId == R.id.nav_home) {
                 selectedFragment = new HomeFragment();
             } else if (itemId == R.id.nav_search) {
-                selectedFragment = new SearchFragment();
+                SearchFragment searchFragment = new SearchFragment();
+                if (expandSearchOnLoad) {
+                    Bundle args = new Bundle();
+                    args.putBoolean("expand_search", true);
+                    searchFragment.setArguments(args);
+                    expandSearchOnLoad = false; // Reset flag
+                }
+                selectedFragment = searchFragment;
             } else if (itemId == R.id.nav_heart) {
                 selectedFragment = new HeartFragment();
             } else if (itemId == R.id.nav_bag) {
@@ -63,7 +77,9 @@ public class HomeActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null && "BagFragment".equals(intent.getStringExtra("navigateTo"))) {
-            getSupportFragmentManager().beginTransaction()
+            if (intent.getBooleanExtra("ITEM_ADDED_SUCCESS", false)) {
+                Snackbar.make(findViewById(R.id.main), "Added to bag", Snackbar.LENGTH_SHORT).show();
+            }            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new BagFragment())
                     .commit();
             bottomNav.setSelectedItemId(R.id.nav_bag);
