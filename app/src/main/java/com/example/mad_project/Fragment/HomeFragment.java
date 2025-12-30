@@ -1,7 +1,5 @@
 package com.example.mad_project.Fragment;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,7 +16,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -43,7 +40,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,18 +48,19 @@ public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
     private static final long CAROUSEL_DELAY_MS = 3000;
+    private static final int PAGE_SIZE = 30;
 
     // UI
-    private TextView userNameText, setStoreText, seeAllCategoriesButton, seeAllRecommendedButton;
+    private TextView userNameText, allProductsHeader, seeAllCategoriesButton, seeAllRecommendedButton;
     private ViewPager2 carouselViewPager;
-    private LinearLayout dotsIndicator;
+    private LinearLayout dotsIndicator, homeContentContainer;
     private RecyclerView categoryRecyclerView, recommendedProductsRecyclerView, allProductsGridRecyclerView;
     private EditText searchBar;
-    private CardView carouselCardView;
+    private ProgressBar homeProgressBar, homeProgressBar2;
 
     // Adapters
     private CategoryAdapter categoryAdapter;
-    private ProductAdapter  allProductsGridAdapter;
+    private ProductAdapter allProductsGridAdapter;
     private RecommendedItemAdapter recommendedProductsAdapter;
     private CarouselAdapter carouselAdapter;
 
@@ -72,23 +69,26 @@ public class HomeFragment extends Fragment {
     private final List<Product> recommendedProductsList = new ArrayList<>();
     private final List<Product> allProductsGridList = new ArrayList<>();
     private final List<CarouselItem> carouselItems = new ArrayList<>();
-    private Set<String> favoriteProductIds = new HashSet<>();
+    private final Set<String> favoriteProductIds = new HashSet<>();
 
     // Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private FirebaseUser currentUser;
-    private static final int PAGE_SIZE = 30;
+    
+    // Pagination & Search
     private DocumentSnapshot lastVisible;
     private boolean isLoading = false;
     private boolean isLastPage = false;
-    private String selectedCategory = null;
-    private String currentSearchTerm = null;
-    private ProgressBar homeProgressBar;
-    private ProgressBar home_progress_bar2;
+    private String currentSearchTerm = "";
+
     // Carousel
     private final Handler carouselHandler = new Handler(Looper.getMainLooper());
     private Runnable carouselRunnable;
+
+    // Search Debounce
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     @Nullable
     @Override
@@ -117,11 +117,9 @@ public class HomeFragment extends Fragment {
     public void onPause() {
         super.onPause();
         stopCarouselAutoScroll();
+        searchHandler.removeCallbacks(searchRunnable);
     }
 
-    // -------------------------------
-    // INITIALIZATION
-    // -------------------------------
     private void initFirebase() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -130,16 +128,15 @@ public class HomeFragment extends Fragment {
 
     private void initViews(View view) {
         userNameText = view.findViewById(R.id.user_name_text);
-        setStoreText = view.findViewById(R.id.set_store_text);
         seeAllCategoriesButton = view.findViewById(R.id.see_all_categories_button);
         seeAllRecommendedButton = view.findViewById(R.id.see_all_recommended_button);
         carouselViewPager = view.findViewById(R.id.carousel_view_pager);
         dotsIndicator = view.findViewById(R.id.dots_indicator);
         homeProgressBar = view.findViewById(R.id.home_progress_bar);
-        home_progress_bar2 = view.findViewById(R.id.home_progress_bar2);
+        homeProgressBar2 = view.findViewById(R.id.home_progress_bar2);
         searchBar = view.findViewById(R.id.search_bar);
-        carouselCardView = view.findViewById(R.id.carousel_card_view);
-
+        homeContentContainer = view.findViewById(R.id.home_content_container);
+        allProductsHeader = view.findViewById(R.id.all_products_header);
 
         categoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         recommendedProductsRecyclerView = view.findViewById(R.id.recommended_products_recycler_view);
@@ -148,28 +145,27 @@ public class HomeFragment extends Fragment {
 
     private void setupRecyclerViews() {
         if (getContext() == null) return;
-        setupCategoryRecyclerView();
-
-        recommendedProductsAdapter = new RecommendedItemAdapter(getContext(), recommendedProductsList);
-        recommendedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        recommendedProductsRecyclerView.setAdapter(recommendedProductsAdapter);
-
-        allProductsGridAdapter = new ProductAdapter(getContext(), allProductsGridList);
-        allProductsGridRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        allProductsGridRecyclerView.setAdapter(allProductsGridAdapter);
-    }
-
-    private void setupCategoryRecyclerView() {
+        
+        // Category list
         categoryList.clear();
         categoryList.add(new Category("Sports", R.drawable.ic_category_sports));
         categoryList.add(new Category("Shoes", R.drawable.ic_category_shoes));
         categoryList.add(new Category("Women", R.drawable.ic_category_women));
         categoryList.add(new Category("Men", R.drawable.ic_category_men));
-        categoryList.add(new Category("Beauty", R.drawable.ic_category_accessories)); // Placeholder
-
+        categoryList.add(new Category("Beauty", R.drawable.ic_category_accessories));
         categoryAdapter = new CategoryAdapter(getContext(), categoryList);
         categoryRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         categoryRecyclerView.setAdapter(categoryAdapter);
+
+        // Recommended
+        recommendedProductsAdapter = new RecommendedItemAdapter(getContext(), recommendedProductsList);
+        recommendedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recommendedProductsRecyclerView.setAdapter(recommendedProductsAdapter);
+
+        // All Products
+        allProductsGridAdapter = new ProductAdapter(getContext(), allProductsGridList);
+        allProductsGridRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        allProductsGridRecyclerView.setAdapter(allProductsGridAdapter);
     }
 
     private void setupListeners() {
@@ -187,15 +183,27 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchTerm = s.toString();
-                loadProducts();
+                String query = s.toString().trim();
+                if (query.equals(currentSearchTerm)) return;
+                
+                currentSearchTerm = query;
+
+                // UI adjustments for search mode
                 if (currentSearchTerm.isEmpty()) {
-                    carouselCardView.setVisibility(View.VISIBLE);
-                    recommendedProductsRecyclerView.setVisibility(View.VISIBLE);
+                    homeContentContainer.setVisibility(View.VISIBLE);
+                    allProductsHeader.setText("All Products");
                 } else {
-                    carouselCardView.setVisibility(View.GONE);
-                    recommendedProductsRecyclerView.setVisibility(View.GONE);
+                    homeContentContainer.setVisibility(View.GONE);
+                    allProductsHeader.setText("Search Results for \"" + currentSearchTerm + "\"");
                 }
+
+                // Debounce search
+                searchHandler.removeCallbacks(searchRunnable);
+                searchRunnable = () -> {
+                    resetPagination();
+                    loadProducts();
+                };
+                searchHandler.postDelayed(searchRunnable, 500);
             }
 
             @Override
@@ -203,20 +211,16 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    // -------------------------------
-    // CAROUSEL LOGIC
-    // -------------------------------
     private void setupCarousel() {
         if (getContext() == null) return;
         carouselItems.clear();
-        carouselItems.add(new CarouselItem("Your Goals. Your Gear.", "Accelerate your fitness journey with these essentials.", R.drawable.carousel1));
-        carouselItems.add(new CarouselItem("New Collection Drop", "Discover the latest trends.", R.drawable.carousel2));
+        carouselItems.add(new CarouselItem("Your Goals. Your Gear.", "Accelerate your fitness journey.", R.drawable.carousel1));
+        carouselItems.add(new CarouselItem("New Collection", "Discover the latest trends.", R.drawable.carousel2));
         carouselItems.add(new CarouselItem("Summer Sale!", "Up to 50% off.", R.drawable.carousel3));
 
         carouselAdapter = new CarouselAdapter(carouselItems);
         carouselViewPager.setAdapter(carouselAdapter);
         setupDotsIndicator();
-        startCarouselAutoScroll();
 
         carouselViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -230,8 +234,11 @@ public class HomeFragment extends Fragment {
     private void startCarouselAutoScroll() {
         carouselHandler.removeCallbacks(carouselRunnable);
         carouselRunnable = () -> {
-            int next = (carouselViewPager.getCurrentItem() + 1) % carouselAdapter.getItemCount();
-            carouselViewPager.setCurrentItem(next, true);
+            if (carouselAdapter != null && carouselAdapter.getItemCount() > 0) {
+                int next = (carouselViewPager.getCurrentItem() + 1) % carouselAdapter.getItemCount();
+                carouselViewPager.setCurrentItem(next, true);
+                carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
+            }
         };
         carouselHandler.postDelayed(carouselRunnable, CAROUSEL_DELAY_MS);
     }
@@ -246,7 +253,7 @@ public class HomeFragment extends Fragment {
         for (int i = 0; i < carouselAdapter.getItemCount(); i++) {
             ImageView dot = new ImageView(getContext());
             dot.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.dot_inactive));
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(16, 16);
             params.setMargins(8, 0, 8, 0);
             dotsIndicator.addView(dot, params);
         }
@@ -256,13 +263,11 @@ public class HomeFragment extends Fragment {
     private void updateDotsIndicator(int position) {
         if (getContext() == null) return;
         for (int i = 0; i < dotsIndicator.getChildCount(); i++) {
-            ((ImageView) dotsIndicator.getChildAt(i)).setImageDrawable(ContextCompat.getDrawable(requireContext(), i == position ? R.drawable.dot_active : R.drawable.dot_inactive));
+            ((ImageView) dotsIndicator.getChildAt(i)).setImageDrawable(ContextCompat.getDrawable(requireContext(), 
+                    i == position ? R.drawable.dot_active : R.drawable.dot_inactive));
         }
     }
 
-    // -------------------------------
-    // DATA LOADING LOGIC
-    // -------------------------------
     private void loadInitialData() {
         loadUserData();
         loadFavoritesAndThenProducts();
@@ -270,6 +275,7 @@ public class HomeFragment extends Fragment {
 
     private void loadFavoritesAndThenProducts() {
         if (currentUser == null) {
+            resetPagination();
             loadProducts();
             return;
         }
@@ -282,52 +288,58 @@ public class HomeFragment extends Fragment {
                             favoriteProductIds.add(doc.getId());
                         }
                     }
+                    resetPagination();
                     loadProducts();
                 });
+    }
+
+    private void resetPagination() {
+        lastVisible = null;
+        isLastPage = false;
+        isLoading = false;
     }
 
     private void loadProducts() {
         if (isLastPage || isLoading) return;
         setInProgress(true);
 
-        Query query = db.collection("products")
-                .orderBy("name")
-                .limit(PAGE_SIZE);
+        final String searchTermAtStart = currentSearchTerm;
 
-        if (selectedCategory != null) {
-            query = query.whereEqualTo("category", selectedCategory);
-        }
+        Query query = db.collection("products").orderBy("name");
 
-        if (currentSearchTerm != null && !currentSearchTerm.isEmpty()) {
-            query = query.whereGreaterThanOrEqualTo("name", currentSearchTerm)
-                    .whereLessThanOrEqualTo("name", currentSearchTerm + "\uf8ff");
+        if (!searchTermAtStart.isEmpty()) {
+            query = query.whereGreaterThanOrEqualTo("name", searchTermAtStart)
+                    .whereLessThanOrEqualTo("name", searchTermAtStart + "\uf8ff");
         }
 
         if (lastVisible != null) {
             query = query.startAfter(lastVisible);
         }
 
-        query.get().addOnCompleteListener(task -> {
+        query.limit(PAGE_SIZE).get().addOnCompleteListener(task -> {
+            if (!searchTermAtStart.equals(currentSearchTerm)) {
+                return; // Ignore results from old queries
+            }
+
             setInProgress(false);
             if (task.isSuccessful()) {
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
 
-                // Clear the lists only when it's a fresh load (not pagination)
                 if (lastVisible == null) {
                     recommendedProductsList.clear();
                     allProductsGridList.clear();
                 }
+
+                boolean isSearching = !searchTermAtStart.isEmpty();
 
                 for (int i = 0; i < documents.size(); i++) {
                     DocumentSnapshot document = documents.get(i);
                     Product product = document.toObject(Product.class);
                     if (product != null) {
                         product.setId(document.getId());
-                        if (favoriteProductIds.contains(product.getId())) {
-                            product.setFavorited(true);
-                        }
+                        product.setFavorited(favoriteProductIds.contains(product.getId()));
 
-                        if (lastVisible == null && i < 10) {
+                        if (!isSearching && lastVisible == null && i < 6) {
                             recommendedProductsList.add(product);
                         } else {
                             allProductsGridList.add(product);
@@ -335,46 +347,39 @@ public class HomeFragment extends Fragment {
                     }
                 }
 
-                // Notify both adapters that their data has changed.
                 recommendedProductsAdapter.notifyDataSetChanged();
                 allProductsGridAdapter.notifyDataSetChanged();
 
                 if (!documents.isEmpty()) {
                     lastVisible = documents.get(documents.size() - 1);
                 }
-                if (documents.size() < PAGE_SIZE) {
-                    isLastPage = true;
-                }
+                isLastPage = documents.size() < PAGE_SIZE;
             } else {
-                Log.w(TAG, "Error getting documents.", task.getException());
+                Log.e(TAG, "Error getting products", task.getException());
                 showSnackbar("Failed to load products.");
             }
         });
     }
 
-    private void showSnackbar(String message) {
-        if (getView() != null) {
-            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
-        }
-    }
     private void loadUserData() {
         if (currentUser == null) return;
         db.collection("users").document(currentUser.getUid()).get()
                 .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        String name = doc.getString("name");
-                        userNameText.setText(name);
+                    if (doc.exists() && userNameText != null) {
+                        userNameText.setText(doc.getString("name"));
                     }
                 });
     }
 
     private void setInProgress(boolean inProgress) {
         isLoading = inProgress;
-        if (homeProgressBar != null) {
-            homeProgressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
-        }
-        if (home_progress_bar2 != null) {
-            home_progress_bar2.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        if (homeProgressBar != null) homeProgressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        if (homeProgressBar2 != null) homeProgressBar2.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+    }
+
+    private void showSnackbar(String message) {
+        if (getView() != null) {
+            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
         }
     }
 }
