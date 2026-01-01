@@ -15,10 +15,10 @@
 | No  | Name / GitHub                                                                                      | Role                                |
 | --- | -------------------------------------------------------------------------------------------------- | ----------------------------------- |
 | 1   | **Roeun Saoly** – [https://github.com/RoeunSaoly](https://github.com/RoeunSaoly) | **Team Leader / Android Developer** |
-| 2   | Roeun Saoly – [https://github.com/Rathanak-Phan](https://github.com/Rathanak-Phan)                       | Firebase & Backend Integration      |
-| 3   | Norak – [https://github.com/Norak-PNG](https://github.com/Norak-PNG)                               | Data Management & Testing           |
-| 4   | Long Sok – [https://github.com/Longsok](https://github.com/Longsok)                                | Documentation & Support             |
-| 5   | Seth                                                                                               | UX / UI Designer                    |
+| 2   | Phan Rathanak – [https://github.com/Rathanak-Phan](https://github.com/Rathanak-Phan)                       | Firebase & Backend Integration      |
+| 3   | Phen Norak – [https://github.com/Norak-PNG](https://github.com/Norak-PNG)                               | Data Management & Testing           |
+| 4   | Young Soklong – [https://github.com/Longsok](https://github.com/Longsok)                                | Documentation & Support             |
+| 5   | Soeurn Broseth - [https://github.com/gegacy]                                                                                             | UX / UI Designer                    |
 
 
 
