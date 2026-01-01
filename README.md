@@ -18,7 +18,7 @@
 | 2   | Phan Rathanak – [https://github.com/Rathanak-Phan](https://github.com/Rathanak-Phan)                       | Firebase & Backend Integration      |
 | 3   | Phen Norak – [https://github.com/Norak-PNG](https://github.com/Norak-PNG)                               | Data Management & Testing           |
 | 4   | Young Soklong – [https://github.com/Longsok](https://github.com/Longsok)                                | Documentation & Support             |
-| 5   | Soeurn Broseth - [https://github.com/gegacy]                                                                                             | UX / UI Designer                    |
+| 5   | Soeurn Broseth - [https://github.com/gegacy](https://github.com/gegacy)                                                                                           | UX / UI Designer                    |
 
 
 
