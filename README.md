@@ -10,7 +10,7 @@
 
 **Clothes Shop App – Android-Based Online Clothing Store**
 
-### 👥 Group Members
+### 👥 Group 3 Members
 
 | No  | Name / GitHub                                                                                      | Role                                |
 | --- | -------------------------------------------------------------------------------------------------- | ----------------------------------- |
