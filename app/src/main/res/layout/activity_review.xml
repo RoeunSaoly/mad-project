@@ -14,6 +14,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:orientation="horizontal">
 
@@ -35,189 +37,222 @@
             android:textStyle="bold" />
 
     </RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="390dp"
-        android:layout_height="wrap_content"
-        android:text="Delivery Details"
-        android:textAlignment="textStart"
-        android:layout_marginTop="40dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="390dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:background="#F6F6F6"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        >
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="10dp">
-
+            android:gravity="center_horizontal">
             <TextView
-                android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Jack Doe"
-                android:textSize="14sp"
+                android:text="Delivery Details"
+                android:textAlignment="textStart"
+                android:paddingEnd="20dp"
+                android:paddingStart="20dp"
+                android:layout_marginTop="40dp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Jackdoe@icloud.com"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/address"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="No. 50, National Road No 1"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:background="#F6F6F6"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                >
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Jack Doe"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Jackdoe@icloud.com"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="No. 50, National Road No 1"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/delivery_method"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Standard Delivery (4-6 business days)"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/delivery_method"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Standard Delivery (4-6 business days)"
-                android:textSize="14sp"
+                android:text="Order Summary"
+                android:textAlignment="textStart"
+                android:paddingEnd="20dp"
+                android:paddingStart="20dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="20dp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black"
+                >
+
+            </View>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/bag_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_height="300dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/black"
+                >
+            </View>
+
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Subtotal"
+                    android:textAlignment="textStart"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:textColor="@color/grey"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/subtotal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:textColor="@color/grey"
+                    android:text="0 $"
+                    android:textAlignment="textEnd"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:text="Shipping"
+                    android:textAlignment="textStart"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/grey"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/shippingFee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:textColor="@color/grey"
+                    android:text="0 $"
+                    android:textAlignment="textEnd"
+                    android:layout_marginTop="10dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:text="Total"
+                    android:textAlignment="textStart"
+                    android:layout_marginTop="10dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/total"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginStart="20dp"
+                    android:text="0 $"
+                    android:textAlignment="textEnd"
+                    android:layout_marginTop="10dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+
+            <Button
+                android:id="@+id/Continue"
+                android:layout_width="300dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:backgroundTint="@color/black"
+                android:layout_marginTop="10dp"
+                android:text="Continue" />
         </LinearLayout>
+    </ScrollView>
 
-    </androidx.cardview.widget.CardView>
-
-    <TextView
-        android:layout_width="390dp"
-        android:layout_height="wrap_content"
-        android:text="Order Summary"
-        android:textAlignment="textStart"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="20dp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        >
-
-    </View>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/bag_recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="300dp" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        >
-    </View>
-
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="390dp"
-            android:layout_height="wrap_content"
-            android:text="Subtotal"
-            android:textAlignment="textStart"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/grey"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/subtotal"
-            android:layout_width="390dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:textColor="@color/grey"
-            android:text="0 $"
-            android:textAlignment="textEnd"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="390dp"
-            android:layout_height="wrap_content"
-            android:text="Shipping"
-            android:textAlignment="textStart"
-            android:layout_marginTop="10dp"
-            android:textColor="@color/grey"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/shippingFee"
-            android:layout_width="390dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/grey"
-            android:text="0 $"
-            android:textAlignment="textEnd"
-            android:layout_marginTop="10dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="390dp"
-            android:layout_height="wrap_content"
-            android:text="Total"
-            android:textAlignment="textStart"
-            android:layout_marginTop="10dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/total"
-            android:layout_width="390dp"
-            android:layout_height="wrap_content"
-            android:text="0 $"
-            android:textAlignment="textEnd"
-            android:layout_marginTop="10dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-
-
-    <Button
-        android:id="@+id/Continue"
-        android:layout_width="300dp"
-        android:layout_height="60dp"
-        android:backgroundTint="@color/black"
-        android:layout_marginTop="10dp"
-        android:text="Continue" />
 
 
 </LinearLayout>

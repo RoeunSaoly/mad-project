@@ -18,6 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
             android:orientation="horizontal">
 
             <TextView
@@ -39,133 +41,146 @@
 
         </RelativeLayout>
 
-        <TextView
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:text="Pay for your order product"
-            android:textAlignment="textStart"
-            android:layout_marginTop="40dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Thank you for order our production, I hope you sir/madam happen happiness."/>
-
-        <TextView
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Order #3849201"/>
-
-        <TextView
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:text="Delivery"
-            android:textAlignment="textStart"
-            android:layout_marginTop="40dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Jack Doe"/>
-
-        <TextView
-            android:id="@+id/email"
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Jackdoe@icloud.com"/>
-
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="No. 50, National Road No 1"/>
-
-        <TextView
-            android:id="@+id/Estimated_Delivery"
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Estimated Delivery: Aug 2 – Aug 4"/>
-
-        <RelativeLayout
-            android:layout_width="380dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <TextView
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total"
-                android:textStyle="bold"/>
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+                <TextView
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:text="Pay for your order product"
+                    android:textAlignment="textStart"
+                    android:layout_marginTop="40dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/total"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="$78 USD"
-                android:textStyle="bold"/>
-        </RelativeLayout>
+                <TextView
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Thank you for order our production, I hope you sir/madam happen happiness."/>
 
-        <ImageView
-            android:id="@+id/qrcode"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_marginTop="20dp" />
+                <TextView
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Order #3849201"/>
 
-        <Button
-            android:id="@+id/pay"
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="30dp"
-            android:backgroundTint="@color/black"
-            android:text="Pay"
-            android:textColor="@color/white" />
+                <TextView
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:text="Delivery"
+                    android:textAlignment="textStart"
+                    android:layout_marginTop="40dp"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Jack Doe"/>
+
+                <TextView
+                    android:id="@+id/email"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Jackdoe@icloud.com"/>
+
+                <TextView
+                    android:id="@+id/address"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="No. 50, National Road No 1"/>
+
+                <TextView
+                    android:id="@+id/Estimated_Delivery"
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Estimated Delivery: Aug 2 – Aug 4"/>
+
+                <RelativeLayout
+                    android:layout_width="380dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/total"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="$78 USD"
+                        android:textStyle="bold"/>
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/qrcode"
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="20dp" />
+
+                <Button
+                    android:id="@+id/pay"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="30dp"
+                    android:backgroundTint="@color/black"
+                    android:text="Pay"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+        </ScrollView>
+
+
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/success_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+    <!-- overlay for success -->
+   <LinearLayout
+       android:id="@+id/success_overlay"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:background="@color/white"
+       android:gravity="center"
+       android:orientation="vertical"
+       android:visibility="gone">
 
-        <ImageView
-            android:id="@+id/success_icon"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/baseline_check_circle_24"
-            app:tint="@color/light_blue" />
+       <ImageView
+           android:id="@+id/success_icon"
+           android:layout_width="100dp"
+           android:layout_height="100dp"
+           android:src="@drawable/baseline_check_circle_24"
+           app:tint="@color/light_blue" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Payment Successful!"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/black" />
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="20dp"
+           android:text="Payment Successful!"
+           android:textSize="24sp"
+           android:textStyle="bold"
+           android:textColor="@color/black" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Redirecting to home..."
-            android:textColor="@color/grey" />
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="10dp"
+           android:text="Redirecting to home..."
+           android:textColor="@color/grey" />
 
-    </LinearLayout>
+   </LinearLayout>
 
 </FrameLayout>
